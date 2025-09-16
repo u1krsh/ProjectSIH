@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Tourism - Smart Digital Platform</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/chatbot.css">
+    <link rel="stylesheet" href="styles/chatbot-enhanced.css">
+    <link rel="stylesheet" href="styles/map.css">
+    <link rel="stylesheet" href="styles/ar-guide.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <i class="fas fa-mountain"></i>
+                <h2>Jharkhand Tourism</h2>
+            </div>
+            <div class="loading-spinner"></div>
+            <p>Loading your adventure...</p>
+        </div>
+    </div>
+
+    <!-- AI Assistant Toggle -->
+    <div class="ai-assistant-toggle" id="aiToggle">
+        <i class="fas fa-robot"></i>
+        <span class="pulse-ring"></span>
+    </div>
+
+    <!-- Weather Widget -->
+    <div class="weather-widget" id="weatherWidget">
+        <div class="weather-content">
+            <div class="weather-icon">
+                <i class="fas fa-sun"></i>
+            </div>
+            <div class="weather-info">
+                <span class="temperature">25°C</span>
+                <span class="location">Ranchi</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="hi">हिंदी</option>
+            <option value="bn">বাংলা</option>
+            <option value="or">ଓଡ଼ିଆ</option>
+        </select>
+    </div>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-mountain"></i>
+                <span>Jharkhand Tourism</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#interactive-map">Explore Map</a></li>
+                <li><a href="#destinations">Destinations</a></li>
+                <li><a href="#culture">Culture</a></li>
+                <li><a href="#eco-tours">Eco Tours</a></li>
+                <li><a href="#ar-guide">AR Guide</a></li>
+                <li><a href="#analytics">Tourism Insights</a></li>
+                <li><a href="#plan">Plan Trip</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="notification-btn" id="notificationBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Enhanced Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-background">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Jharkhand Waterfalls" class="hero-image">
+                <div class="hero-overlay"></div>
+            </div>
+            <div class="hero-content">
+                <h1 class="animated-text">Explore the Heart of India</h1>
+                <p class="hero-subtitle">Jharkhand - Where Ancient Traditions Meet Pristine Nature</p>
+                <p class="hero-description">Discover cascading waterfalls, dense forests, vibrant tribal culture, and spiritual sanctuaries in India's mineral-rich heartland. From the sacred Baidyanath Temple to the breathtaking Hundru Falls, experience authentic India like never before.</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="24">0</span>
+                        <span class="stat-label">Districts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="12">0</span>
+                        <span class="stat-label">National Parks</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="32">0</span>
+                        <span class="stat-label">Tribal Communities</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-target="200">0</span>
+                        <span class="stat-label">Waterfalls</span>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <button class="btn-primary btn-glow">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Explore Interactive Map
+                    </button>
+                    <button class="btn-secondary btn-glass">
+                        <i class="fas fa-camera"></i>
+                        AR Experience
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Map Section -->
+        <section id="interactive-map" class="map-section">
+            <div class="container">
+                <h2>Interactive Jharkhand Map</h2>
+                <div class="map-controls">
+                    <div class="map-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="tourist">Tourist Places</button>
+                        <button class="filter-btn" data-filter="cultural">Cultural Sites</button>
+                        <button class="filter-btn" data-filter="wildlife">Wildlife</button>
+                        <button class="filter-btn" data-filter="adventure">Adventure</button>
+                    </div>
+                    <div class="map-tools">
+                        <button class="tool-btn" id="routePlanner">
+                            <i class="fas fa-route"></i> Plan Route
+                        </button>
+                        <button class="tool-btn" id="nearbyPlaces">
+                            <i class="fas fa-location-arrow"></i> Nearby
+                        </button>
+                        <button class="tool-btn" id="weatherLayer">
+                            <i class="fas fa-cloud-sun"></i> Weather
+                        </button>
+                    </div>
+                </div>
+                <div class="map-container">
+                    <div id="jharkhandMap" class="interactive-map"></div>
+                    <div class="map-sidebar" id="mapSidebar">
+                        <div class="sidebar-content">
+                            <h3>Select a location to explore</h3>
+                            <p>Click on any marker to discover amazing places in Jharkhand</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AR Guide Section -->
+        <section id="ar-guide" class="ar-section">
+            <div class="container">
+                <h2>Augmented Reality Guide</h2>
+                <div class="ar-content">
+                    <div class="ar-demo">
+                        <div class="ar-camera-view" id="arCameraView">
+                            <div class="ar-overlay">
+                                <div class="ar-marker">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Hundru Falls - 2.3km</span>
+                                </div>
+                                <div class="ar-info-panel">
+                                    <h4>AR Features</h4>
+                                    <ul>
+                                        <li><i class="fas fa-eye"></i> Real-time location info</li>
+                                        <li><i class="fas fa-language"></i> Multi-language support</li>
+                                        <li><i class="fas fa-route"></i> Navigation assistance</li>
+                                        <li><i class="fas fa-camera"></i> Photo opportunities</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ar-controls">
+                            <button class="ar-btn" id="startAR">
+                                <i class="fas fa-play"></i> Start AR Experience
+                            </button>
+                            <button class="ar-btn" id="arSettings">
+                                <i class="fas fa-cog"></i> Settings
+                            </button>
+                        </div>
+                    </div>
+                    <div class="ar-features">
+                        <div class="feature-card">
+                            <i class="fas fa-mobile-alt"></i>
+                            <h3>Mobile AR</h3>
+                            <p>Use your smartphone camera to discover hidden gems and historical information</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-brain"></i>
+                            <h3>AI Recognition</h3>
+                            <p>Intelligent object recognition for landmarks, flora, and cultural artifacts</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-globe"></i>
+                            <h3>Virtual Tours</h3>
+                            <p>360° virtual reality experiences of remote locations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tourism Analytics Section -->
+        <section id="analytics" class="analytics-section">
+            <div class="container">
+                <h2>Tourism Insights & Analytics</h2>
+                <div class="analytics-grid">
+                    <div class="chart-container">
+                        <h3>Visitor Trends</h3>
+                        <canvas id="visitorChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Popular Destinations</h3>
+                        <canvas id="destinationChart"></canvas>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <i class="fas fa-users"></i>
+                            <h4>Annual Visitors</h4>
+                            <span class="metric-value">2.8M+</span>
+                            <span class="metric-change positive">+15%</span>
+                        </div>
+                        <div class="metric-card">
+                            <i class="fas fa-dollar-sign"></i>
+                            <h4>Revenue Generated</h4>
+                            <span class="metric-value">₹450Cr</span>
+                            <span class="metric-change positive">+22%</span>
+                        </div>
+                        <div class="metric-card">
+                            <i class="fas fa-leaf"></i>
+                            <h4>Eco-Tourism Growth</h4>
+                            <span class="metric-value">45%</span>
+                            <span class="metric-change positive">+8%</span>
+                        </div>
+                        <div class="metric-card">
+                            <i class="fas fa-star"></i>
+                            <h4>Average Rating</h4>
+                            <span class="metric-value">4.7/5</span>
+                            <span class="metric-change positive">+0.3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Destinations Section -->
+        <section id="destinations" class="destinations">
+            <div class="container">
+                <h2>Discover Amazing Destinations</h2>
+                <div class="destination-filters">
+                    <button class="filter-tag active" data-category="all">All</button>
+                    <button class="filter-tag" data-category="nature">Nature</button>
+                    <button class="filter-tag" data-category="cultural">Cultural</button>
+                    <button class="filter-tag" data-category="adventure">Adventure</button>
+                    <button class="filter-tag" data-category="pilgrimage">Pilgrimage</button>
+                </div>
+                <div class="destination-grid" id="destinationGrid">
+                    <!-- Enhanced destination cards will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Virtual Reality Section -->
+        <section id="vr-experience" class="vr-section">
+            <div class="container">
+                <h2>Virtual Reality Experiences</h2>
+                <div class="vr-gallery">
+                    <div class="vr-card">
+                        <div class="vr-thumbnail">
+                            <img src="assets/images/vr-betla.jpg" alt="Betla VR Experience">
+                            <div class="vr-overlay">
+                                <i class="fas fa-vr-cardboard"></i>
+                                <span>VR Experience</span>
+                            </div>
+                        </div>
+                        <h3>Betla National Park Safari</h3>
+                        <p>Experience a virtual wildlife safari through Jharkhand's premier national park</p>
+                        <button class="vr-btn">Start VR Tour</button>
+                    </div>
+                    <div class="vr-card">
+                        <div class="vr-thumbnail">
+                            <img src="assets/images/vr-tribal.jpg" alt="Tribal Village VR">
+                            <div class="vr-overlay">
+                                <i class="fas fa-vr-cardboard"></i>
+                                <span>360° Tour</span>
+                            </div>
+                        </div>
+                        <h3>Tribal Village Life</h3>
+                        <p>Immerse yourself in the daily life and traditions of Jharkhand's tribal communities</p>
+                        <button class="vr-btn">Explore Village</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Culture Section -->
+        <section id="culture" class="culture-section">
+            <div class="container">
+                <h2>Rich Cultural Heritage</h2>
+                <div class="culture-tabs">
+                    <button class="tab-btn active" data-tab="traditions">Traditions</button>
+                    <button class="tab-btn" data-tab="festivals">Festivals</button>
+                    <button class="tab-btn" data-tab="crafts">Handicrafts</button>
+                    <button class="tab-btn" data-tab="cuisine">Cuisine</button>
+                </div>
+                <div class="culture-content" id="cultureContent">
+                    <!-- Culture content will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- AI-Powered Trip Planner -->
+        <section id="plan" class="trip-planner">
+            <div class="container">
+                <h2>AI-Powered Trip Planner</h2>
+                <div class="planner-container">
+                    <div class="planner-form">
+                        <form id="aiTripForm" class="ai-trip-form">
+                            <div class="form-section">
+                                <h3>Tell us about your preferences</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="budget">Budget Range</label>
+                                        <select id="budget" required>
+                                            <option value="">Select Budget</option>
+                                            <option value="budget">Budget (₹5,000-₹15,000)</option>
+                                            <option value="mid">Mid-range (₹15,000-₹40,000)</option>
+                                            <option value="luxury">Luxury (₹40,000+)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="travelStyle">Travel Style</label>
+                                        <select id="travelStyle" required>
+                                            <option value="">Select Style</option>
+                                            <option value="solo">Solo Adventure</option>
+                                            <option value="couple">Romantic Getaway</option>
+                                            <option value="family">Family Trip</option>
+                                            <option value="group">Group Tour</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="preferences-grid">
+                                    <h4>What interests you most?</h4>
+                                    <div class="preference-cards">
+                                        <label class="preference-card">
+                                            <input type="checkbox" value="wildlife">
+                                            <i class="fas fa-paw"></i>
+                                            <span>Wildlife</span>
+                                        </label>
+                                        <label class="preference-card">
+                                            <input type="checkbox" value="culture">
+                                            <i class="fas fa-theater-masks"></i>
+                                            <span>Culture</span>
+                                        </label>
+                                        <label class="preference-card">
+                                            <input type="checkbox" value="adventure">
+                                            <i class="fas fa-mountain"></i>
+                                            <span>Adventure</span>
+                                        </label>
+                                        <label class="preference-card">
+                                            <input type="checkbox" value="spiritual">
+                                            <i class="fas fa-om"></i>
+                                            <span>Spiritual</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary btn-ai">
+                                    <i class="fas fa-magic"></i>
+                                    Generate AI Itinerary
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="ai-suggestions" id="aiSuggestions">
+                        <div class="suggestion-placeholder">
+                            <i class="fas fa-robot"></i>
+                            <h3>AI Travel Assistant Ready</h3>
+                            <p>Fill out your preferences and I'll create a personalized itinerary for your Jharkhand adventure!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Eco Tours Section -->
+        <section id="eco-tours" class="eco-tours">
+            <div class="container">
+                <h2>Sustainable Eco Tourism</h2>
+                <div class="eco-grid" id="ecoGrid">
+                    <!-- Enhanced eco tours will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- AI Chatbot -->
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <div class="bot-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="bot-info">
+                <h4>Jharkhand AI Assistant</h4>
+                <span class="status online">Online</span>
+            </div>
+            <button class="chat-minimize" id="chatMinimize">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>Namaste! I'm your AI guide for Jharkhand tourism. How can I help you explore the beautiful state today?</p>
+                    <div class="quick-replies">
+                        <button class="quick-reply">Best places to visit</button>
+                        <button class="quick-reply">Cultural experiences</button>
+                        <button class="quick-reply">Wildlife tours</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <div class="input-container">
+                <input type="text" id="chatInput" placeholder="Ask me anything about Jharkhand tourism...">
+                <button id="voiceInput" class="voice-btn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button id="sendMessage" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Jharkhand Tourism</h3>
+                    <p>India's first AI-powered smart digital platform for eco and cultural tourism</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#interactive-map">Interactive Map</a></li>
+                        <li><a href="#ar-guide">AR Guide</a></li>
+                        <li><a href="#analytics">Tourism Analytics</a></li>
+                        <li><a href="#vr-experience">VR Experiences</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#" id="emergencyHelp">Emergency Help</a></li>
+                        <li><a href="#" id="touristHelpline">Tourist Helpline</a></li>
+                        <li><a href="#" id="feedbackForm">Feedback</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Download App</h3>
+                    <div class="app-links">
+                        <a href="#" class="app-btn">
+                            <i class="fab fa-apple"></i>
+                            <div>
+                                <span>Download on the</span>
+                                <strong>App Store</strong>
+                            </div>
+                        </a>
+                        <a href="#" class="app-btn">
+                            <i class="fab fa-google-play"></i>
+                            <div>
+                                <span>Get it on</span>
+                                <strong>Google Play</strong>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Jharkhand Tourism Board. All rights reserved. | Developed for Smart India Hackathon</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/chatbot.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/ar-guide.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/vr-experience.js"></script>
+</body>
+</html>
