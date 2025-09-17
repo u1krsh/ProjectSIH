@@ -1,4 +1,4 @@
-# Jharkhand Smart Tourism Platform 🏔️
+# Tribal Trails - Smart Tourism Platform 🏔️
 
 ## Overview
 A comprehensive hackathon-ready tourism platform for Jharkhand featuring enhanced frontend, real interactive mapping, and a complete backend infrastructure with AI-powered chatbot.

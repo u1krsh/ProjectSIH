@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribal Homestays - Authentic Local Experiences</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/homestays.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-logo-container">
+                    <div class="logo-icon-group">
+                        <i class="fas fa-mountain logo-mountain"></i>
+                        <i class="fas fa-route logo-trail"></i>
+                    </div>
+                    <div class="logo-accent"></div>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text-main">Tribal</span>
+                    <span class="brand-text-sub">Trails</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="marketplace.html" class="nav-link">Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="folklore.html" class="nav-link">Folklore</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="homestays.html" class="nav-link active">Homestays</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="forum.html" class="nav-link">Community</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="user-menu" id="userMenu">
+                    <button class="auth-btn login-btn" onclick="openModal('loginModal')">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </button>
+                    <button class="auth-btn register-btn" onclick="openModal('registerModal')">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register</span>
+                    </button>
+                </div>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Search -->
+    <section class="homestay-hero">
+        <div class="hero-bg-animation">
+            <div class="floating-element" style="--delay: 0s; --duration: 8s; --size: 60px; top: 15%; left: 10%;">🏠</div>
+            <div class="floating-element" style="--delay: 1s; --duration: 12s; --size: 40px; top: 25%; right: 15%;">🌿</div>
+            <div class="floating-element" style="--delay: 2s; --duration: 10s; --size: 50px; top: 60%; left: 20%;">🎭</div>
+            <div class="floating-element" style="--delay: 3s; --duration: 15s; --size: 45px; bottom: 30%; right: 25%;">🏔️</div>
+        </div>
+        <div class="hero-overlay">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badges">
+                        <div class="trust-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>2,500+ Verified Hosts</span>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-star"></i>
+                            <span>4.8 Average Rating</span>
+                        </div>
+                    </div>
+                    
+                    <h1>Discover Authentic Tribal Homestays</h1>
+                    <p>Stay with local families, experience rich traditions, and create unforgettable memories in Jharkhand's tribal villages</p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number counter" data-target="500">0</div>
+                            <div class="stat-label">Unique Homestays</div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-number counter" data-target="32">0</div>
+                            <div class="stat-label">Tribal Communities</div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-number counter" data-target="15000">0</div>
+                            <div class="stat-label">Happy Travelers</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="search-container">
+                        <div class="search-form">
+                            <div class="search-field">
+                                <label>Where</label>
+                                <input type="text" id="locationInput" placeholder="Search destination">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="search-field date-field">
+                                <label>Check-in</label>
+                                <input type="text" id="checkinDate" placeholder="Add dates">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="search-field date-field">
+                                <label>Check-out</label>
+                                <input type="text" id="checkoutDate" placeholder="Add dates">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="search-field guests-field">
+                                <label>Guests</label>
+                                <input type="text" id="guestsInput" placeholder="Add guests" readonly>
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <button class="search-btn" onclick="searchHomestays()">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Destinations Quick Access -->
+    <section class="popular-destinations-quick">
+        <div class="container">
+            <div class="quick-destinations">
+                <div class="quick-dest-header">
+                    <h3>Popular Destinations</h3>
+                    <span>Discover tribal communities across Jharkhand</span>
+                </div>
+                <div class="destinations-slider">
+                    <div class="destination-quick-card" onclick="quickSearchDestination('Dumka')">
+                        <div class="dest-image">
+                            <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop" alt="Dumka">
+                        </div>
+                        <div class="dest-info">
+                            <h4>Dumka</h4>
+                            <p>Santhal Heartland</p>
+                            <span class="homestay-count">45+ homestays</span>
+                        </div>
+                    </div>
+                    <div class="destination-quick-card" onclick="quickSearchDestination('Ranchi')">
+                        <div class="dest-image">
+                            <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=200&h=120&fit=crop" alt="Ranchi">
+                        </div>
+                        <div class="dest-info">
+                            <h4>Ranchi</h4>
+                            <p>Munda Territory</p>
+                            <span class="homestay-count">38+ homestays</span>
+                        </div>
+                    </div>
+                    <div class="destination-quick-card" onclick="quickSearchDestination('Chaibasa')">
+                        <div class="dest-image">
+                            <img src="https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=200&h=120&fit=crop" alt="Chaibasa">
+                        </div>
+                        <div class="dest-info">
+                            <h4>Chaibasa</h4>
+                            <p>Ho Homeland</p>
+                            <span class="homestay-count">29+ homestays</span>
+                        </div>
+                    </div>
+                    <div class="destination-quick-card" onclick="quickSearchDestination('Gumla')">
+                        <div class="dest-image">
+                            <img src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=200&h=120&fit=crop" alt="Gumla">
+                        </div>
+                        <div class="dest-info">
+                            <h4>Gumla</h4>
+                            <p>Oraon Forests</p>
+                            <span class="homestay-count">32+ homestays</span>
+                        </div>
+                    </div>
+                    <div class="destination-quick-card" onclick="quickSearchDestination('Lohardaga')">
+                        <div class="dest-image">
+                            <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?w=200&h=120&fit=crop" alt="Lohardaga">
+                        </div>
+                        <div class="dest-info">
+                            <h4>Lohardaga</h4>
+                            <p>Mountain Tribes</p>
+                            <span class="homestay-count">21+ homestays</span>
+                        </div>
+                    </div>
+                    <div class="destination-quick-card view-all" onclick="viewAllDestinations()">
+                        <div class="view-all-content">
+                            <i class="fas fa-plus-circle"></i>
+                            <h4>View All</h4>
+                            <p>Explore more destinations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label>Price Range</label>
+                    <select id="priceFilter">
+                        <option value="">Any Price</option>
+                        <option value="0-1000">₹0 - ₹1,000</option>
+                        <option value="1000-2500">₹1,000 - ₹2,500</option>
+                        <option value="2500-5000">₹2,500 - ₹5,000</option>
+                        <option value="5000+">₹5,000+</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Room Type</label>
+                    <select id="roomTypeFilter">
+                        <option value="">Any Type</option>
+                        <option value="private">Private Room</option>
+                        <option value="shared">Shared Room</option>
+                        <option value="entire">Entire Home</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Amenities</label>
+                    <div class="amenity-filters">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="wifi"> Wi-Fi
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="meals"> Meals Included
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="activities"> Cultural Activities
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="guide"> Local Guide
+                        </label>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Rating</label>
+                    <select id="ratingFilter">
+                        <option value="">Any Rating</option>
+                        <option value="4.5">4.5+ Stars</option>
+                        <option value="4.0">4.0+ Stars</option>
+                        <option value="3.5">3.5+ Stars</option>
+                    </select>
+                </div>
+                <button class="clear-filters" onclick="clearFilters()">Clear All</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+        <div class="container">
+            <div class="results-header">
+                <h2>Over 20 homestays in Jharkhand</h2>
+                <div class="view-options">
+                    <button class="view-btn active" data-view="grid"><i class="fas fa-th-large"></i></button>
+                    <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+
+            <!-- Homestay Listings -->
+            <div class="homestays-grid" id="homestaysGrid">
+                <!-- Dynamic content loaded here -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="page-btn" disabled>&laquo; Previous</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">Next &raquo;</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Guest Selection Modal -->
+    <div id="guestModal" class="guest-modal">
+        <div class="guest-modal-content">
+            <h3>Guests</h3>
+            <div class="guest-counter">
+                <div class="guest-type">
+                    <div class="guest-info">
+                        <strong>Adults</strong>
+                        <span>Age 13+</span>
+                    </div>
+                    <div class="counter-controls">
+                        <button onclick="changeGuestCount('adults', -1)">-</button>
+                        <span id="adultsCount">2</span>
+                        <button onclick="changeGuestCount('adults', 1)">+</button>
+                    </div>
+                </div>
+                <div class="guest-type">
+                    <div class="guest-info">
+                        <strong>Children</strong>
+                        <span>Age 2-12</span>
+                    </div>
+                    <div class="counter-controls">
+                        <button onclick="changeGuestCount('children', -1)">-</button>
+                        <span id="childrenCount">0</span>
+                        <button onclick="changeGuestCount('children', 1)">+</button>
+                    </div>
+                </div>
+                <div class="guest-type">
+                    <div class="guest-info">
+                        <strong>Infants</strong>
+                        <span>Under 2</span>
+                    </div>
+                    <div class="counter-controls">
+                        <button onclick="changeGuestCount('infants', -1)">-</button>
+                        <span id="infantsCount">0</span>
+                        <button onclick="changeGuestCount('infants', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="guest-modal-actions">
+                <button onclick="closeGuestModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="booking-modal">
+        <div class="booking-modal-content">
+            <div class="modal-header">
+                <h3>Reserve Your Stay</h3>
+                <button class="close-btn" onclick="closeBookingModal()">&times;</button>
+            </div>
+            <div class="booking-details" id="bookingDetails">
+                <!-- Dynamic booking content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modals -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Login to Your Account</h3>
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember"> Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="submit-btn">Login</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="#" onclick="switchModal('loginModal', 'registerModal')">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Account</h3>
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userType">Account Type</label>
+                        <select id="userType" name="userType" required>
+                            <option value="">Select Account Type</option>
+                            <option value="tourist">Tourist</option>
+                            <option value="local">Local Resident</option>
+                            <option value="guide">Tour Guide</option>
+                            <option value="homestay">Homestay Host</option>
+                            <option value="artisan">Artisan</option>
+                            <option value="business">Business Owner</option>
+                        </select>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms" required> I agree to the <a href="#">Terms & Conditions</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="#" onclick="switchModal('registerModal', 'loginModal')">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="js/homestays.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribal Marketplace - Authentic Jharkhand Crafts</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/marketplace.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-logo-container">
+                    <div class="logo-icon-group">
+                        <i class="fas fa-mountain logo-mountain"></i>
+                        <i class="fas fa-route logo-trail"></i>
+                    </div>
+                    <div class="logo-accent"></div>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text-main">Tribal</span>
+                    <span class="brand-text-sub">Trails</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="marketplace.html" class="nav-link active">Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="folklore.html" class="nav-link">Folklore</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="homestays.html" class="nav-link">Homestays</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="forum.html" class="nav-link">Community</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="user-menu" id="userMenu">
+                    <button class="auth-btn login-btn" onclick="openModal('loginModal')">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </button>
+                    <button class="auth-btn register-btn" onclick="openModal('registerModal')">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register</span>
+                    </button>
+                </div>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Marketplace Header -->
+    <section class="marketplace-section">
+        <div class="container">
+            <div class="section-header">
+                <h1 class="section-title">Tribal Marketplace</h1>
+                <p class="section-subtitle">
+                    Discover authentic handcrafted products made by skilled tribal artisans of Jharkhand. 
+                    Every purchase supports local communities and preserves traditional crafts.
+                </p>
+            </div>
+
+            <!-- Shopping Cart Icon -->
+            <div class="cart-icon" id="cartIcon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+
+            <!-- Marketplace Filters -->
+            <div class="marketplace-filters">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="categoryFilter">Category</label>
+                        <select id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="handicrafts">Handicrafts</option>
+                            <option value="textiles">Textiles</option>
+                            <option value="jewelry">Jewelry</option>
+                            <option value="pottery">Pottery</option>
+                            <option value="woodwork">Woodwork</option>
+                            <option value="metal-craft">Metal Craft</option>
+                            <option value="paintings">Paintings</option>
+                            <option value="musical-instruments">Musical Instruments</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="priceFilter">Price Range</label>
+                        <select id="priceFilter">
+                            <option value="">All Prices</option>
+                            <option value="0-500">₹0 - ₹500</option>
+                            <option value="500-1000">₹500 - ₹1,000</option>
+                            <option value="1000-2500">₹1,000 - ₹2,500</option>
+                            <option value="2500-5000">₹2,500 - ₹5,000</option>
+                            <option value="5000+">₹5,000+</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="regionFilter">Region</label>
+                        <select id="regionFilter">
+                            <option value="">All Regions</option>
+                            <option value="ranchi">Ranchi</option>
+                            <option value="hazaribagh">Hazaribagh</option>
+                            <option value="deoghar">Deoghar</option>
+                            <option value="dumka">Dumka</option>
+                            <option value="giridih">Giridih</option>
+                            <option value="dhanbad">Dhanbad</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="searchInput">Search</label>
+                        <input type="text" id="searchInput" placeholder="Search products...">
+                    </div>
+                    
+                    <button class="filter-btn" onclick="applyFilters()">
+                        <i class="fas fa-filter"></i> Apply Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be dynamically loaded here -->
+            </div>
+
+            <!-- Load More Button -->
+            <div class="text-center">
+                <button class="btn btn-outline" id="loadMoreBtn" onclick="loadMoreProducts()">
+                    <i class="fas fa-plus"></i> Load More Products
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProductModal()">&times;</span>
+            <div class="modal-body" id="modalBody">
+                <!-- Product details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <button class="close-cart" onclick="toggleCart()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be loaded here -->
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <strong>Total: ₹<span id="cartTotal">0</span></strong>
+            </div>
+            <button class="btn btn-primary full-width" onclick="checkout()">
+                <i class="fas fa-credit-card"></i> Checkout
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Tribal Trails</h3>
+                    <p>Connecting you with authentic Jharkhand experiences and supporting local communities.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="marketplace.html">Marketplace</a></li>
+                        <li><a href="folklore.html">Folklore</a></li>
+                        <li><a href="homestays.html">Homestays</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-phone"></i> +91 651 234 5678</p>
+                    <p><i class="fas fa-envelope"></i> info@tribaltrails.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Ranchi, Jharkhand</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Tribal Trails. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modals -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Login to Your Account</h3>
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember"> Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="submit-btn">Login</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="#" onclick="switchModal('loginModal', 'registerModal')">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Account</h3>
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userType">Account Type</label>
+                        <select id="userType" name="userType" required>
+                            <option value="">Select Account Type</option>
+                            <option value="tourist">Tourist</option>
+                            <option value="local">Local Resident</option>
+                            <option value="guide">Tour Guide</option>
+                            <option value="homestay">Homestay Host</option>
+                            <option value="artisan">Artisan</option>
+                            <option value="business">Business Owner</option>
+                        </select>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms" required> I agree to the <a href="#">Terms & Conditions</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="#" onclick="switchModal('registerModal', 'loginModal')">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/marketplace.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,793 @@
+/* Folklore Page Styles */
+
+/* Import Cinzel font for storytelling aesthetic */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap');
+
+:root {
+    --folklore-primary: #6366F1;
+    --folklore-secondary: #8B5CF6;
+    --folklore-accent: #F59E0B;
+    --folklore-text: #F3F4F6;
+    --folklore-text-muted: #9CA3AF;
+    --folklore-dark: #111827;
+    --folklore-darker: #0F172A;
+    --folklore-card: rgba(17, 24, 39, 0.8);
+    --folklore-border: rgba(107, 114, 128, 0.2);
+    --folklore-gradient: linear-gradient(135deg, var(--folklore-primary), var(--folklore-secondary));
+    --folklore-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+/* Hero Section */
+.folklore-hero {
+    position: relative;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--folklore-darker) 0%, var(--folklore-dark) 50%, #1F2937 100%);
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 70%),
+        radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.1) 0%, transparent 70%),
+        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="tribal" patternUnits="userSpaceOnUse" width="20" height="20"><path d="M10 0L20 10L10 20L0 10Z" fill="none" stroke="rgba(99,102,241,0.05)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23tribal)"/></svg>');
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: relative;
+    width: 100%;
+    z-index: 2;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--folklore-gradient);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 2rem;
+    box-shadow: var(--folklore-glow);
+}
+
+.hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 700;
+    color: var(--folklore-text);
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #F3F4F6, #D1D5DB);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--folklore-text-muted);
+    margin-bottom: 3rem;
+    line-height: 1.7;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-item .stat-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--folklore-accent);
+    font-family: 'Cinzel', serif;
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.stat-item .stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--folklore-text-muted);
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.folklore-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background: var(--folklore-gradient);
+    color: white;
+    box-shadow: var(--folklore-glow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--folklore-text);
+    border: 2px solid var(--folklore-border);
+}
+
+.btn-secondary:hover {
+    background: var(--folklore-card);
+    border-color: var(--folklore-primary);
+}
+
+/* Section Styling */
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--folklore-card);
+    color: var(--folklore-accent);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--folklore-border);
+}
+
+.section-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 600;
+    color: var(--folklore-text);
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    color: var(--folklore-text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Featured Stories */
+.featured-stories {
+    background: var(--folklore-darker);
+    padding: 6rem 0;
+}
+
+.stories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.story-card {
+    background: var(--folklore-card);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid var(--folklore-border);
+    backdrop-filter: blur(10px);
+}
+
+.story-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: var(--folklore-primary);
+}
+
+.story-card.featured {
+    grid-column: span 2;
+}
+
+.story-image {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+}
+
+.story-card.featured .story-image {
+    height: 300px;
+}
+
+.story-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.story-card:hover .story-image img {
+    transform: scale(1.1);
+}
+
+.story-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.story-card:hover .story-overlay {
+    opacity: 1;
+}
+
+.play-btn {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.story-content {
+    padding: 2rem;
+}
+
+.story-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.story-tribe {
+    color: var(--folklore-accent);
+    font-weight: 600;
+}
+
+.story-duration {
+    color: var(--folklore-text-muted);
+}
+
+.story-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--folklore-text);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+}
+
+.story-excerpt {
+    color: var(--folklore-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.story-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--folklore-primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* Audio Stories */
+.audio-stories {
+    background: var(--folklore-dark);
+    padding: 6rem 0;
+}
+
+.audio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.audio-card {
+    background: var(--folklore-card);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--folklore-border);
+    backdrop-filter: blur(10px);
+}
+
+.audio-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.audio-cover {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.audio-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.audio-play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    background: var(--folklore-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--folklore-glow);
+}
+
+.audio-play-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.audio-info {
+    text-align: center;
+}
+
+.audio-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--folklore-text);
+    margin-bottom: 0.5rem;
+}
+
+.audio-narrator {
+    color: var(--folklore-text-muted);
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.audio-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0 1rem;
+}
+
+.audio-language {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--folklore-accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.audio-duration {
+    color: var(--folklore-text-muted);
+    font-weight: 500;
+}
+
+.audio-controls {
+    width: 100%;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--folklore-border);
+    border-radius: 2px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--folklore-gradient);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.audio-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--folklore-text-muted);
+}
+
+/* Tribal Communities */
+.tribal-communities {
+    background: var(--folklore-darker);
+    padding: 6rem 0;
+}
+
+.communities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.community-card {
+    background: var(--folklore-card);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid var(--folklore-border);
+    backdrop-filter: blur(10px);
+}
+
+.community-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: var(--folklore-primary);
+}
+
+.community-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--folklore-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: white;
+    box-shadow: var(--folklore-glow);
+}
+
+.community-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--folklore-text);
+    margin-bottom: 1rem;
+}
+
+.community-description {
+    color: var(--folklore-text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.community-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.community-stats .stat {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--folklore-primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* Folklore Map */
+.folklore-map {
+    background: var(--folklore-dark);
+    padding: 6rem 0;
+}
+
+.map-container {
+    margin-top: 3rem;
+    border-radius: 20px;
+    overflow: hidden;
+    height: 500px;
+    background: var(--folklore-card);
+    border: 1px solid var(--folklore-border);
+}
+
+.map-placeholder {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--folklore-darker), var(--folklore-dark));
+}
+
+.map-content {
+    text-align: center;
+    color: var(--folklore-text);
+}
+
+.map-content i {
+    font-size: 4rem;
+    color: var(--folklore-primary);
+    margin-bottom: 1rem;
+}
+
+.map-content h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.map-content p {
+    color: var(--folklore-text-muted);
+    margin-bottom: 2rem;
+}
+
+.map-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.legend-color.creation {
+    background: #10B981;
+}
+
+.legend-color.hero {
+    background: #F59E0B;
+}
+
+.legend-color.nature {
+    background: #3B82F6;
+}
+
+.legend-color.festival {
+    background: #EF4444;
+}
+
+/* Story Modal */
+.story-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.story-modal-content {
+    background: var(--folklore-card);
+    margin: 2% auto;
+    padding: 0;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    border: 1px solid var(--folklore-border);
+}
+
+.story-modal .modal-header {
+    padding: 2rem;
+    border-bottom: 1px solid var(--folklore-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.story-modal .modal-header h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: var(--folklore-text);
+    margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--folklore-text-muted);
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: var(--folklore-border);
+    color: var(--folklore-text);
+}
+
+.story-modal .modal-body {
+    padding: 2rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    color: var(--folklore-text);
+    line-height: 1.7;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-stats {
+        gap: 2rem;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .folklore-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+    
+    .stories-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .story-card.featured {
+        grid-column: span 1;
+    }
+    
+    .audio-grid,
+    .communities-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-legend {
+        gap: 1rem;
+        justify-content: flex-start;
+    }
+    
+    .story-modal-content {
+        width: 95%;
+        margin: 5% auto;
+    }
+    
+    .story-modal .modal-header,
+    .story-modal .modal-body {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-content {
+        padding: 1rem;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .section-header {
+        margin-bottom: 2rem;
+    }
+    
+    .story-content,
+    .audio-card,
+    .community-card {
+        padding: 1.5rem;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.story-card,
+.audio-card,
+.community-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.story-card:nth-child(2) { animation-delay: 0.1s; }
+.story-card:nth-child(3) { animation-delay: 0.2s; }
+.story-card:nth-child(4) { animation-delay: 0.3s; }
+
+/* Scrollbar Styling */
+.story-modal .modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.story-modal .modal-body::-webkit-scrollbar-track {
+    background: var(--folklore-border);
+    border-radius: 4px;
+}
+
+.story-modal .modal-body::-webkit-scrollbar-thumb {
+    background: var(--folklore-primary);
+    border-radius: 4px;
+}
+
+.story-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--folklore-secondary);
+}

@@ -1,4 +1,4 @@
-class TourismChatbot {
+﻿class TourismChatbot {
     constructor() {
         this.isOpen = false;
         this.isMinimized = false;
@@ -350,7 +350,7 @@ class TourismChatbot {
             "Plan your itinerary"
         ];
         
-        return `I'd be happy to help! Here's what I can assist you with:\n\n${suggestions.map(s => `• ${s}`).join('\n')}\n\nOr you can ask me anything about Jharkhand tourism!`;
+        return `I'd be happy to help! Here's what I can assist you with:\n\n${suggestions.map(s => `• ${s}`).join('\n')}\n\nOr you can ask me anything about Tribal Trails!`;
     }
 
     handleQuickReply(reply) {

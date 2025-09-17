@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribal Folklore - Stories and Legends of Jharkhand</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/folklore.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-logo-container">
+                    <div class="logo-icon-group">
+                        <i class="fas fa-mountain logo-mountain"></i>
+                        <i class="fas fa-route logo-trail"></i>
+                    </div>
+                    <div class="logo-accent"></div>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text-main">Tribal</span>
+                    <span class="brand-text-sub">Trails</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="marketplace.html" class="nav-link">Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="folklore.html" class="nav-link active">Folklore</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="homestays.html" class="nav-link">Homestays</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="forum.html" class="nav-link">Community</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="user-menu" id="userMenu">
+                    <button class="auth-btn login-btn" onclick="openModal('loginModal')">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Login</span>
+                    </button>
+                    <button class="auth-btn register-btn" onclick="openModal('registerModal')">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Register</span>
+                    </button>
+                </div>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="folklore-hero">
+        <div class="hero-overlay">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="fas fa-feather-alt"></i>
+                        Ancient Wisdom
+                    </div>
+                    <h1 class="hero-title">Tribal Folklore of Jharkhand</h1>
+                    <p class="hero-subtitle">Journey through millennia of oral traditions, sacred myths, and timeless legends passed down by tribal elders across generations</p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">32+</span>
+                            <span class="stat-label">Tribal Communities</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">Folk Tales</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">15+</span>
+                            <span class="stat-label">Languages</span>
+                        </div>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn-primary folklore-btn" onclick="scrollToSection('stories')">
+                            <i class="fas fa-book-open"></i>
+                            Explore Stories
+                        </button>
+                        <button class="btn-secondary folklore-btn" onclick="scrollToSection('audio')">
+                            <i class="fas fa-play"></i>
+                            Listen to Legends
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Stories Section -->
+    <section class="featured-stories" id="stories">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-star"></i>
+                    Featured
+                </div>
+                <h2 class="section-title">Sacred Stories & Legends</h2>
+                <p class="section-subtitle">Discover the most beloved tales that have shaped tribal culture for generations</p>
+            </div>
+
+            <div class="stories-grid">
+                <div class="story-card featured" onclick="openStoryModal('birsa-munda')">
+                    <div class="story-image">
+                        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500&h=300&fit=crop" alt="Birsa Munda Legend">
+                        <div class="story-overlay">
+                            <div class="play-btn">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-content">
+                        <div class="story-meta">
+                            <span class="story-tribe">Munda Tribe</span>
+                            <span class="story-duration">12 min read</span>
+                        </div>
+                        <h3 class="story-title">The Legend of Birsa Munda</h3>
+                        <p class="story-excerpt">The heroic tale of the tribal leader who challenged the British Raj and became a symbol of resistance and freedom...</p>
+                        <div class="story-tags">
+                            <span class="tag">Hero</span>
+                            <span class="tag">Freedom</span>
+                            <span class="tag">Leadership</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="story-card" onclick="openStoryModal('sarhul-festival')">
+                    <div class="story-image">
+                        <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=500&h=300&fit=crop" alt="Sarhul Festival Origin">
+                        <div class="story-overlay">
+                            <div class="play-btn">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-content">
+                        <div class="story-meta">
+                            <span class="story-tribe">Santhal Tribe</span>
+                            <span class="story-duration">8 min read</span>
+                        </div>
+                        <h3 class="story-title">The Origin of Sarhul Festival</h3>
+                        <p class="story-excerpt">How the sacred Sal trees blessed the land and gave birth to the most important festival of the tribal calendar...</p>
+                        <div class="story-tags">
+                            <span class="tag">Festival</span>
+                            <span class="tag">Nature</span>
+                            <span class="tag">Blessing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="story-card" onclick="openStoryModal('drum-spirits')">
+                    <div class="story-image">
+                        <img src="https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=500&h=300&fit=crop" alt="Sacred Drums">
+                        <div class="story-overlay">
+                            <div class="play-btn">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-content">
+                        <div class="story-meta">
+                            <span class="story-tribe">Ho Tribe</span>
+                            <span class="story-duration">10 min read</span>
+                        </div>
+                        <h3 class="story-title">The Sacred Drums and Forest Spirits</h3>
+                        <p class="story-excerpt">Ancient drums that could communicate with forest spirits and protect the village from evil forces...</p>
+                        <div class="story-tags">
+                            <span class="tag">Spirits</span>
+                            <span class="tag">Music</span>
+                            <span class="tag">Protection</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="story-card" onclick="openStoryModal('water-goddess')">
+                    <div class="story-image">
+                        <img src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?w=500&h=300&fit=crop" alt="Water Goddess">
+                        <div class="story-overlay">
+                            <div class="play-btn">
+                                <i class="fas fa-play"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-content">
+                        <div class="story-meta">
+                            <span class="story-tribe">Oraon Tribe</span>
+                            <span class="story-duration">6 min read</span>
+                        </div>
+                        <h3 class="story-title">The Water Goddess of Hundru Falls</h3>
+                        <p class="story-excerpt">A beautiful goddess who blessed the land with eternal waterfalls and taught the people to respect nature...</p>
+                        <div class="story-tags">
+                            <span class="tag">Goddess</span>
+                            <span class="tag">Water</span>
+                            <span class="tag">Nature</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Audio Stories Section -->
+    <section class="audio-stories" id="audio">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-headphones"></i>
+                    Listen
+                </div>
+                <h2 class="section-title">Oral Traditions</h2>
+                <p class="section-subtitle">Experience authentic storytelling by tribal elders in their native languages</p>
+            </div>
+
+            <div class="audio-grid">
+                <div class="audio-card">
+                    <div class="audio-cover">
+                        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop" alt="Elder Storyteller">
+                        <div class="audio-play-btn" onclick="playAudio('story1')">
+                            <i class="fas fa-play" id="play-icon-1"></i>
+                        </div>
+                    </div>
+                    <div class="audio-info">
+                        <h4 class="audio-title">The Creation Myth</h4>
+                        <p class="audio-narrator">Narrated by Elder Soma Munda</p>
+                        <div class="audio-meta">
+                            <span class="audio-language">Mundari</span>
+                            <span class="audio-duration">15:32</span>
+                        </div>
+                        <div class="audio-controls">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-1"></div>
+                            </div>
+                            <div class="audio-time">
+                                <span id="current-time-1">0:00</span>
+                                <span id="total-time-1">15:32</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="audio-card">
+                    <div class="audio-cover">
+                        <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&h=300&fit=crop" alt="Elder Storyteller">
+                        <div class="audio-play-btn" onclick="playAudio('story2')">
+                            <i class="fas fa-play" id="play-icon-2"></i>
+                        </div>
+                    </div>
+                    <div class="audio-info">
+                        <h4 class="audio-title">The Great Hunt</h4>
+                        <p class="audio-narrator">Narrated by Elder Devi Soren</p>
+                        <div class="audio-meta">
+                            <span class="audio-language">Santhali</span>
+                            <span class="audio-duration">12:45</span>
+                        </div>
+                        <div class="audio-controls">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-2"></div>
+                            </div>
+                            <div class="audio-time">
+                                <span id="current-time-2">0:00</span>
+                                <span id="total-time-2">12:45</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="audio-card">
+                    <div class="audio-cover">
+                        <img src="https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=300&h=300&fit=crop" alt="Elder Storyteller">
+                        <div class="audio-play-btn" onclick="playAudio('story3')">
+                            <i class="fas fa-play" id="play-icon-3"></i>
+                        </div>
+                    </div>
+                    <div class="audio-info">
+                        <h4 class="audio-title">The Magic Flute</h4>
+                        <p class="audio-narrator">Narrated by Elder Karma Oraon</p>
+                        <div class="audio-meta">
+                            <span class="audio-language">Kurukh</span>
+                            <span class="audio-duration">9:18</span>
+                        </div>
+                        <div class="audio-controls">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-3"></div>
+                            </div>
+                            <div class="audio-time">
+                                <span id="current-time-3">0:00</span>
+                                <span id="total-time-3">9:18</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tribal Communities Section -->
+    <section class="tribal-communities">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-users"></i>
+                    Communities
+                </div>
+                <h2 class="section-title">Storytelling Traditions</h2>
+                <p class="section-subtitle">Explore the unique folklore traditions of different tribal communities</p>
+            </div>
+
+            <div class="communities-grid">
+                <div class="community-card" onclick="filterStories('santhal')">
+                    <div class="community-icon">
+                        <i class="fas fa-drum"></i>
+                    </div>
+                    <h3 class="community-name">Santhal</h3>
+                    <p class="community-description">Known for epic tales of creation, heroic ancestors, and harvest celebrations</p>
+                    <div class="community-stats">
+                        <span class="stat">125 Stories</span>
+                        <span class="stat">Music & Dance</span>
+                    </div>
+                </div>
+
+                <div class="community-card" onclick="filterStories('munda')">
+                    <div class="community-icon">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h3 class="community-name">Munda</h3>
+                    <p class="community-description">Forest spirits, ancestral wisdom, and stories of unity with nature</p>
+                    <div class="community-stats">
+                        <span class="stat">98 Stories</span>
+                        <span class="stat">Nature Worship</span>
+                    </div>
+                </div>
+
+                <div class="community-card" onclick="filterStories('ho')">
+                    <div class="community-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3 class="community-name">Ho</h3>
+                    <p class="community-description">Tales of brave warriors, sacred rituals, and protective spirits</p>
+                    <div class="community-stats">
+                        <span class="stat">76 Stories</span>
+                        <span class="stat">Warrior Culture</span>
+                    </div>
+                </div>
+
+                <div class="community-card" onclick="filterStories('oraon')">
+                    <div class="community-icon">
+                        <i class="fas fa-mountain"></i>
+                    </div>
+                    <h3 class="community-name">Oraon</h3>
+                    <p class="community-description">Mountain legends, agricultural wisdom, and celestial stories</p>
+                    <div class="community-stats">
+                        <span class="stat">89 Stories</span>
+                        <span class="stat">Agricultural Lore</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Map Section -->
+    <section class="folklore-map">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Explore
+                </div>
+                <h2 class="section-title">Stories on the Map</h2>
+                <p class="section-subtitle">Discover where these ancient tales originated across Jharkhand</p>
+            </div>
+
+            <div class="map-container">
+                <div class="map-placeholder">
+                    <div class="map-content">
+                        <i class="fas fa-map"></i>
+                        <h3>Interactive Folklore Map</h3>
+                        <p>Click on regions to discover local legends and stories</p>
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-color creation"></div>
+                                <span>Creation Myths</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color hero"></div>
+                                <span>Hero Legends</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color nature"></div>
+                                <span>Nature Spirits</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color festival"></div>
+                                <span>Festival Origins</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Modal -->
+    <div id="storyModal" class="story-modal">
+        <div class="story-modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Story Title</h3>
+                <button class="close-btn" onclick="closeStoryModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic story content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modals -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Login to Your Account</h3>
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="remember"> Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="submit-btn">Login</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="#" onclick="switchModal('loginModal', 'registerModal')">Sign up</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Account</h3>
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userType">Account Type</label>
+                        <select id="userType" name="userType" required>
+                            <option value="">Select Account Type</option>
+                            <option value="tourist">Tourist</option>
+                            <option value="local">Local Resident</option>
+                            <option value="guide">Tour Guide</option>
+                            <option value="homestay">Homestay Host</option>
+                            <option value="artisan">Artisan</option>
+                            <option value="business">Business Owner</option>
+                        </select>
+                    </div>
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="terms" required> I agree to the <a href="#">Terms & Conditions</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="#" onclick="switchModal('registerModal', 'loginModal')">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/folklore.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

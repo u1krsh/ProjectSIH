@@ -1,4 +1,39 @@
 /* filepath: d:\SIH\ProjectSIH\js\main.js */
+// Performance Optimization: Defer non-critical operations
+document.addEventListener('DOMContentLoaded', function() {
+    // Performance monitoring
+    if ('performance' in window) {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const perfData = performance.getEntriesByType('navigation')[0];
+                console.log('Page Load Time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
+            }, 0);
+        });
+    }
+    
+    // Intersection Observer for lazy loading animations
+    if ('IntersectionObserver' in window) {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '50px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        // Observe elements for animation
+        document.querySelectorAll('.destination-card, .feature-card, .stat-card').forEach(el => {
+            observer.observe(el);
+        });
+    }
+});
+
 // Enhanced data for destinations with more details
 const destinations = [
     {
@@ -662,52 +697,554 @@ function handleScroll() {
     }
 }
 
+// Advanced Weather System
+let currentWeatherData = null;
+let userLocation = { lat: 23.3441, lng: 85.3096, city: 'Ranchi' }; // Default to Ranchi
+
 function initializeWeather() {
-    // Simulate weather data
     const weatherWidget = document.getElementById('weatherWidget');
     if (weatherWidget) {
-        // In a real app, this would fetch actual weather data
-        updateWeatherWidget('Ranchi', 25, 'sunny');
+        setupWeatherEvents();
+        getUserLocationAndFetchWeather();
     }
 }
 
-function updateWeatherWidget(location, temperature, condition) {
+function setupWeatherEvents() {
     const weatherWidget = document.getElementById('weatherWidget');
-    if (!weatherWidget) return;
+    const weatherModal = document.getElementById('weatherModal');
+    const closeBtn = document.querySelector('.close-weather-modal');
+    
+    // Click to expand weather dashboard
+    weatherWidget.addEventListener('click', function() {
+        if (currentWeatherData) {
+            openWeatherDashboard();
+        }
+    });
+    
+    // Close modal events
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeWeatherDashboard);
+    }
+    
+    if (weatherModal) {
+        weatherModal.addEventListener('click', function(e) {
+            if (e.target === weatherModal) {
+                closeWeatherDashboard();
+            }
+        });
+    }
+    
+    // Auto-refresh weather every 10 minutes
+    setInterval(() => {
+        if (userLocation.city) {
+            fetchWeatherData(userLocation.city);
+        }
+    }, 600000); // 10 minutes
+}
+
+function getUserLocationAndFetchWeather() {
+    showWeatherLoading(true);
+    
+    // Try to get user's geolocation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                userLocation.lat = position.coords.latitude;
+                userLocation.lng = position.coords.longitude;
+                fetchWeatherByCoordinates(userLocation.lat, userLocation.lng);
+            },
+            function(error) {
+                console.log('Geolocation error:', error);
+                // Fallback to default location (Ranchi)
+                fetchWeatherData('ranchi');
+            },
+            { timeout: 5000, enableHighAccuracy: false }
+        );
+    } else {
+        // Geolocation not supported, use default
+        fetchWeatherData('ranchi');
+    }
+}
+
+async function fetchWeatherData(city) {
+    try {
+        showWeatherLoading(true);
+        
+        // Call the enhanced backend API with real-time data
+        const response = await fetch(`/api/weather/${city}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            currentWeatherData = result.data;
+            updateWeatherWidget(currentWeatherData);
+            userLocation.city = currentWeatherData.city;
+            
+            // Log data source for debugging
+            console.log(`🌤️ Weather data loaded for ${currentWeatherData.city} from ${result.source || 'unknown'} source`);
+            
+            // Show user feedback if using cached data
+            if (result.cached) {
+                console.log('📦 Using cached weather data');
+            }
+            
+            // Show notification if using mock data due to API limitations
+            if (result.source === 'mock') {
+                console.log('⚠️ Using sample weather data. Configure OpenWeatherMap API key for real-time data.');
+            }
+        } else {
+            throw new Error(result.message || 'Failed to fetch weather data');
+        }
+    } catch (error) {
+        console.error('Weather fetch error:', error);
+        console.log('🔄 Falling back to local mock data...');
+        
+        // Fallback to local mock data
+        currentWeatherData = getMockWeatherData(city);
+        updateWeatherWidget(currentWeatherData);
+        userLocation.city = currentWeatherData.city;
+        
+        // Show user-friendly error message
+        showWeatherError('Unable to fetch live weather data. Showing sample information.');
+    } finally {
+        showWeatherLoading(false);
+    }
+}
+
+async function fetchWeatherByCoordinates(lat, lng) {
+    try {
+        showWeatherLoading(true);
+        
+        const response = await fetch(`/api/weather/coords/${lat}/${lng}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            currentWeatherData = result.data;
+            updateWeatherWidget(currentWeatherData);
+            
+            // Use the city name from the API response or get from coordinates
+            if (currentWeatherData.city && currentWeatherData.city !== 'Unknown Location') {
+                userLocation.city = currentWeatherData.city;
+            } else {
+                // Get city name from coordinates if not provided by API
+                const cityName = await getCityFromCoordinates(lat, lng);
+                userLocation.city = cityName;
+                currentWeatherData.city = cityName;
+            }
+            
+            // Log data source for debugging
+            console.log(`🌤️ Weather data loaded for coordinates (${lat}, ${lng}) from ${result.source || 'unknown'} source`);
+            
+            // Show user feedback
+            if (result.cached) {
+                console.log('📦 Using cached weather data');
+            }
+            
+            if (result.source === 'mock') {
+                console.log('⚠️ Using sample weather data. Configure OpenWeatherMap API key for real-time data.');
+            }
+        } else {
+            throw new Error(result.message || 'Failed to fetch weather data');
+        }
+    } catch (error) {
+        console.error('Weather coordinate fetch error:', error);
+        console.log('🔄 Falling back to default location weather...');
+        
+        // Fallback to default city weather
+        await fetchWeatherData('ranchi');
+    } finally {
+        showWeatherLoading(false);
+    }
+}
+
+function getMockWeatherData(city = 'Ranchi') {
+    const mockData = {
+        ranchi: {
+            city: 'Ranchi',
+            temperature: 25,
+            condition: 'partly_cloudy',
+            description: 'Partly cloudy with pleasant weather',
+            humidity: 65,
+            windSpeed: 8,
+            uvIndex: { index: 6, level: 'High' },
+            airQuality: { aqi: 75, level: 'Good' },
+            visibility: '10 km',
+            pressure: 1013,
+            feelsLike: 28,
+            forecast: [
+                { day: 'Today', high: 28, low: 18, condition: 'partly_cloudy', description: 'Partly Cloudy' },
+                { day: 'Tomorrow', high: 30, low: 19, condition: 'sunny', description: 'Sunny' },
+                { day: 'Day 3', high: 27, low: 17, condition: 'cloudy', description: 'Cloudy' },
+                { day: 'Day 4', high: 26, low: 16, condition: 'rainy', description: 'Light Rain' },
+                { day: 'Day 5', high: 29, low: 20, condition: 'sunny', description: 'Sunny' }
+            ]
+        }
+    };
+    
+    return mockData[city.toLowerCase()] || mockData.ranchi;
+}
+
+function updateWeatherWidget(weatherData) {
+    const weatherWidget = document.getElementById('weatherWidget');
+    if (!weatherWidget || !weatherData) return;
     
     const icons = {
         sunny: 'fas fa-sun',
+        partly_cloudy: 'fas fa-cloud-sun',
+        cloudy: 'fas fa-cloud',
+        rainy: 'fas fa-cloud-rain',
+        stormy: 'fas fa-bolt',
+        snow: 'fas fa-snowflake'
+    };
+    
+    // Update widget display
+    const weatherIcon = weatherWidget.querySelector('.weather-icon i');
+    const temperature = weatherWidget.querySelector('.temperature');
+    const condition = weatherWidget.querySelector('.condition');
+    const location = weatherWidget.querySelector('.location');
+    const humidity = weatherWidget.querySelector('.humidity');
+    const wind = weatherWidget.querySelector('.wind');
+    
+    if (weatherIcon) weatherIcon.className = icons[weatherData.condition] || icons.sunny;
+    if (temperature) temperature.textContent = `${weatherData.temperature}°C`;
+    if (condition) condition.textContent = weatherData.description || getConditionText(weatherData.condition);
+    if (location) location.textContent = weatherData.city;
+    if (humidity) humidity.textContent = `${weatherData.humidity}%`;
+    if (wind) wind.textContent = `${weatherData.windSpeed} km/h`;
+    
+    // Add weather-based styling
+    updateWeatherStyling(weatherData.condition);
+}
+
+function getConditionText(condition) {
+    const conditions = {
+        sunny: 'Sunny',
+        partly_cloudy: 'Partly Cloudy',
+        cloudy: 'Cloudy',
+        rainy: 'Rainy',
+        stormy: 'Stormy',
+        snow: 'Snow'
+    };
+    return conditions[condition] || 'Clear';
+}
+
+function updateWeatherStyling(condition) {
+    const weatherWidget = document.getElementById('weatherWidget');
+    if (!weatherWidget) return;
+    
+    // Remove existing condition classes
+    weatherWidget.classList.remove('weather-sunny', 'weather-cloudy', 'weather-rainy', 'weather-stormy');
+    
+    // Add new condition class
+    weatherWidget.classList.add(`weather-${condition}`);
+}
+
+function showWeatherLoading(show) {
+    const weatherContent = document.querySelector('.weather-content');
+    const weatherLoading = document.querySelector('.weather-loading');
+    
+    if (weatherContent && weatherLoading) {
+        if (show) {
+            weatherContent.style.display = 'none';
+            weatherLoading.style.display = 'flex';
+        } else {
+            weatherContent.style.display = 'block';
+            weatherLoading.style.display = 'none';
+        }
+    }
+}
+
+function showWeatherError(message) {
+    console.warn('Weather Error:', message);
+    
+    // You could add a toast notification here if you have a notification system
+    // For now, we'll just log it to the console
+    
+    // Optional: Show a temporary indicator in the weather widget
+    const weatherWidget = document.getElementById('weatherWidget');
+    if (weatherWidget) {
+        const originalTitle = weatherWidget.title;
+        weatherWidget.title = message;
+        weatherWidget.style.opacity = '0.7';
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            weatherWidget.title = originalTitle;
+            weatherWidget.style.opacity = '1';
+        }, 3000);
+    }
+}
+
+function openWeatherDashboard() {
+    const weatherModal = document.getElementById('weatherModal');
+    if (weatherModal && currentWeatherData) {
+        updateWeatherDashboard(currentWeatherData);
+        weatherModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Animate modal appearance
+        setTimeout(() => {
+            weatherModal.classList.add('weather-modal-open');
+        }, 10);
+    }
+}
+
+function closeWeatherDashboard() {
+    const weatherModal = document.getElementById('weatherModal');
+    if (weatherModal) {
+        weatherModal.classList.remove('weather-modal-open');
+        document.body.style.overflow = '';
+        
+        setTimeout(() => {
+            weatherModal.style.display = 'none';
+        }, 300);
+    }
+}
+
+function updateWeatherDashboard(weatherData) {
+    updateCurrentWeatherSection(weatherData);
+    updateForecastSection(weatherData.forecast || []);
+    updateTravelAdviceSection(weatherData);
+    fetchAndUpdateAlerts(weatherData.city);
+}
+
+function updateCurrentWeatherSection(weatherData) {
+    const icons = {
+        sunny: 'fas fa-sun',
+        partly_cloudy: 'fas fa-cloud-sun',
         cloudy: 'fas fa-cloud',
         rainy: 'fas fa-cloud-rain',
         stormy: 'fas fa-bolt'
     };
     
-    weatherWidget.querySelector('.weather-icon i').className = icons[condition] || icons.sunny;
-    weatherWidget.querySelector('.temperature').textContent = `${temperature}°C`;
-    weatherWidget.querySelector('.location').textContent = location;
+    // Update current weather display
+    const currentIcon = document.querySelector('.current-icon i');
+    const currentLocation = document.querySelector('.current-location');
+    const currentTemp = document.querySelector('.current-temp');
+    const currentCondition = document.querySelector('.current-condition');
+    const feelsLike = document.querySelector('.feels-like');
+    
+    if (currentIcon) currentIcon.className = icons[weatherData.condition] || icons.sunny;
+    if (currentLocation) currentLocation.textContent = `${weatherData.city}, Jharkhand`;
+    if (currentTemp) currentTemp.textContent = `${weatherData.temperature}°C`;
+    if (currentCondition) currentCondition.textContent = weatherData.description;
+    if (feelsLike) feelsLike.textContent = `Feels like ${weatherData.feelsLike || weatherData.temperature + 3}°C`;
+    
+    // Update detail values
+    updateDetailValue('Humidity', `${weatherData.humidity}%`);
+    updateDetailValue('Wind Speed', `${weatherData.windSpeed} km/h`);
+    updateDetailValue('UV Index', `${weatherData.uvIndex?.index || 6} (${weatherData.uvIndex?.level || 'High'})`);
+    updateDetailValue('Visibility', weatherData.visibility || '10 km');
+    updateDetailValue('Pressure', `${weatherData.pressure || 1013} hPa`);
+    updateDetailValue('Air Quality', `${weatherData.airQuality?.level || 'Good'} (${weatherData.airQuality?.aqi || 75})`);
+}
+
+function updateDetailValue(label, value) {
+    const detailItems = document.querySelectorAll('.detail-item');
+    detailItems.forEach(item => {
+        const labelElement = item.querySelector('.detail-label');
+        const valueElement = item.querySelector('.detail-value');
+        if (labelElement && labelElement.textContent === label && valueElement) {
+            valueElement.textContent = value;
+        }
+    });
+}
+
+function updateForecastSection(forecast) {
+    const forecastContainer = document.querySelector('.forecast-container');
+    if (!forecastContainer || !forecast.length) return;
+    
+    const icons = {
+        sunny: 'fas fa-sun',
+        partly_cloudy: 'fas fa-cloud-sun',
+        cloudy: 'fas fa-cloud',
+        rainy: 'fas fa-cloud-rain',
+        stormy: 'fas fa-bolt'
+    };
+    
+    forecastContainer.innerHTML = forecast.map((day, index) => `
+        <div class="forecast-item">
+            <div class="forecast-day">${index === 0 ? 'Today' : day.day}</div>
+            <div class="forecast-icon">
+                <i class="${icons[day.condition] || icons.sunny}"></i>
+            </div>
+            <div class="forecast-temps">
+                <span class="high">${day.high}°</span>
+                <span class="low">${day.low}°</span>
+            </div>
+            <div class="forecast-condition">${day.description || getConditionText(day.condition)}</div>
+        </div>
+    `).join('');
+}
+
+async function updateTravelAdviceSection(weatherData) {
+    try {
+        const response = await fetch(`/api/weather/travel-advice/${weatherData.city}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            const advice = result.data;
+            updateTravelAdviceDisplay(advice);
+        } else {
+            updateTravelAdviceDisplay(getMockTravelAdvice(weatherData));
+        }
+    } catch (error) {
+        updateTravelAdviceDisplay(getMockTravelAdvice(weatherData));
+    }
+}
+
+function getMockTravelAdvice(weatherData) {
+    return {
+        currentConditions: weatherData.temperature > 30 ? 'Hot weather - stay hydrated' : 
+                          weatherData.temperature < 15 ? 'Cool weather - dress warmly' : 
+                          'Perfect weather for outdoor activities',
+        recommendations: [
+            'Excellent weather for sightseeing and photography',
+            'Comfortable conditions for nature walks',
+            'Perfect time to visit tribal villages',
+            'Ideal for outdoor cultural experiences'
+        ],
+        whatToBring: [
+            'Comfortable walking shoes',
+            'Water bottle',
+            'Sun hat and sunglasses',
+            'Light cotton clothing',
+            'Camera for photography'
+        ],
+        bestActivities: [
+            'Village tours',
+            'Photography',
+            'Nature walks',
+            'Cultural experiences',
+            'Outdoor dining'
+        ]
+    };
+}
+
+function updateTravelAdviceDisplay(advice) {
+    // Update advice header
+    const adviceCard = document.querySelector('.advice-card p');
+    if (adviceCard) {
+        adviceCard.textContent = advice.currentConditions;
+    }
+    
+    // Update what to bring
+    const bringItems = document.querySelector('.bring-items');
+    if (bringItems && advice.whatToBring) {
+        bringItems.innerHTML = advice.whatToBring.map(item => `
+            <div class="bring-item">
+                <i class="fas fa-check"></i>
+                <span>${item}</span>
+            </div>
+        `).join('');
+    }
+    
+    // Update activities
+    const activityTags = document.querySelector('.activity-tags');
+    if (activityTags && advice.bestActivities) {
+        activityTags.innerHTML = advice.bestActivities.map(activity => `
+            <span class="activity-tag">${activity}</span>
+        `).join('');
+    }
+}
+
+async function fetchAndUpdateAlerts(city) {
+    try {
+        const response = await fetch(`/api/weather/alerts/${city}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            updateAlertsDisplay(result.data);
+        } else {
+            updateAlertsDisplay([]);
+        }
+    } catch (error) {
+        updateAlertsDisplay([]);
+    }
+}
+
+function updateAlertsDisplay(alerts) {
+    const alertsContainer = document.querySelector('.alerts-container');
+    if (!alertsContainer) return;
+    
+    if (!alerts.length) {
+        alertsContainer.innerHTML = `
+            <div class="no-alerts">
+                <i class="fas fa-check-circle"></i>
+                <p>No weather alerts at this time. Conditions are favorable for travel.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const severityIcons = {
+        low: 'fas fa-info-circle',
+        medium: 'fas fa-exclamation-triangle',
+        high: 'fas fa-exclamation-circle'
+    };
+    
+    alertsContainer.innerHTML = alerts.map(alert => `
+        <div class="alert-item alert-${alert.severity}">
+            <div class="alert-icon">
+                <i class="${severityIcons[alert.severity] || severityIcons.low}"></i>
+            </div>
+            <div class="alert-content">
+                <h4>${alert.title}</h4>
+                <p>${alert.description}</p>
+                <div class="alert-meta">
+                    <span>Valid until: ${new Date(alert.validUntil).toLocaleDateString()}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function getCityFromCoordinates(lat, lng) {
+    // Simple city detection based on coordinates for Jharkhand
+    const jharkhandCities = [
+        { name: 'Ranchi', lat: 23.3441, lng: 85.3096, radius: 50 },
+        { name: 'Jamshedpur', lat: 22.8046, lng: 86.2029, radius: 50 },
+        { name: 'Dhanbad', lat: 23.7957, lng: 86.4304, radius: 40 },
+        { name: 'Bokaro', lat: 23.6693, lng: 86.1511, radius: 40 },
+        { name: 'Deoghar', lat: 24.4820, lng: 86.6958, radius: 30 },
+        { name: 'Hazaribagh', lat: 23.9929, lng: 85.3647, radius: 30 }
+    ];
+    
+    for (const city of jharkhandCities) {
+        const distance = calculateDistance(lat, lng, city.lat, city.lng);
+        if (distance <= city.radius) {
+            return city.name;
+        }
+    }
+    
+    return 'Jharkhand'; // Default if no specific city found
+}
+
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
 }
 
 function setupThemeToggle() {
-    const themeToggle = document.getElementById('themeToggle');
-    if (!themeToggle) return;
-    
-    themeToggle.addEventListener('click', function() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        
-        // Update icon
-        const icon = themeToggle.querySelector('i');
-        icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    });
-    
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    const icon = themeToggle.querySelector('i');
-    icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    // Dark mode is now default - no theme toggle needed
+    // Ensure dark theme is always set
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
 }
 
 function setupLanguageSelector() {
@@ -916,3 +1453,317 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Culture tabs functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button and corresponding content
+            this.classList.add('active');
+            const targetContent = document.getElementById(targetTab);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+    
+    // Animated counters for hero stats
+    const animateCounters = () => {
+        const counters = document.querySelectorAll('.stat-number[data-target]');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000; // 2 seconds
+            const increment = target / (duration / 16); // 60fps
+            let current = 0;
+            
+            const updateCounter = () => {
+                current += increment;
+                if (current < target) {
+                    counter.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+            
+            updateCounter();
+        });
+    };
+    
+    // Trigger counter animation when hero section is visible
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        observer.observe(heroSection);
+    }
+    
+    // Filter functionality for destinations
+    const filterButtons = document.querySelectorAll('.filter-tag');
+    const destinationCards = document.querySelectorAll('.destination-card');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filterValue = this.getAttribute('data-category');
+            
+            // Update active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter cards
+            destinationCards.forEach(card => {
+                if (filterValue === 'all' || card.getAttribute('data-category').includes(filterValue)) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeInUp 0.5s ease forwards';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Add smooth scrolling to navigation links
+    const navLinks = document.querySelectorAll('a[href^="#"]');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                const offsetTop = targetSection.offsetTop - 80; // Account for navbar
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+
+// Add CSS animations
+const animationStyles = document.createElement('style');
+animationStyles.textContent = `
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .destination-card {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .testimonial-card,
+    .eco-card,
+    .culture-card {
+        opacity: 0;
+        transform: translateY(30px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    .testimonial-card:nth-child(1) { animation-delay: 0.1s; }
+    .testimonial-card:nth-child(2) { animation-delay: 0.2s; }
+    .testimonial-card:nth-child(3) { animation-delay: 0.3s; }
+    
+    .eco-card:nth-child(1) { animation-delay: 0.1s; }
+    .eco-card:nth-child(2) { animation-delay: 0.2s; }
+    .eco-card:nth-child(3) { animation-delay: 0.3s; }
+`;
+document.head.appendChild(animationStyles);
+
+// Theme Toggle Functionality
+class ThemeManager {
+    constructor() {
+        this.currentTheme = localStorage.getItem('theme') || 'light';
+        this.themeToggle = document.getElementById('themeToggle');
+        this.themeIcon = document.getElementById('themeIcon');
+        
+        console.log('ThemeManager initialized');
+        console.log('Toggle button found:', !!this.themeToggle);
+        console.log('Theme icon found:', !!this.themeIcon);
+        
+        this.init();
+    }
+    
+    init() {
+        // Set initial theme
+        this.setTheme(this.currentTheme);
+        
+        // Add event listener
+        if (this.themeToggle) {
+            this.themeToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('Theme toggle clicked');
+                this.toggleTheme();
+            });
+            console.log('Event listener added to theme toggle');
+        } else {
+            console.error('Theme toggle button not found!');
+        }
+        
+        // Update theme based on system preference if no saved preference
+        if (!localStorage.getItem('theme')) {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            this.setTheme(prefersDark ? 'dark' : 'light');
+        }
+    }
+    
+    toggleTheme() {
+        const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        console.log('Toggling theme from', this.currentTheme, 'to', newTheme);
+        this.setTheme(newTheme);
+        
+        // Add rotation animation
+        if (this.themeToggle) {
+            this.themeToggle.classList.add('rotating');
+            setTimeout(() => {
+                this.themeToggle.classList.remove('rotating');
+            }, 500);
+        }
+    }
+    
+    setTheme(theme) {
+        console.log('Setting theme to:', theme);
+        this.currentTheme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        
+        // Update icon
+        if (this.themeIcon) {
+            if (theme === 'dark') {
+                this.themeIcon.className = 'fas fa-moon';
+            } else {
+                this.themeIcon.className = 'fas fa-sun';
+            }
+            console.log('Icon updated for', theme, 'theme');
+        }
+        
+        // Update toggle button aria-label
+        if (this.themeToggle) {
+            this.themeToggle.setAttribute('aria-label', 
+                theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+            );
+        }
+        
+        console.log('Theme set successfully');
+    }
+}
+
+// Initialize theme manager when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing ThemeManager');
+    const themeManager = new ThemeManager();
+    initializeCultureTabs();
+    
+    // Additional fallback for theme toggle
+    const fallbackToggle = document.getElementById('themeToggle');
+    if (fallbackToggle && !fallbackToggle.hasAttribute('data-initialized')) {
+        fallbackToggle.setAttribute('data-initialized', 'true');
+        fallbackToggle.addEventListener('click', () => {
+            console.log('Fallback theme toggle clicked');
+            themeManager.toggleTheme();
+        });
+    }
+});
+
+// Culture tabs functionality
+function initializeCultureTabs() {
+    const tabButtons = document.querySelectorAll('.culture-tabs .tab-btn');
+    const tabContents = document.querySelectorAll('.culture-content .tab-content');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+            
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to clicked button and corresponding content
+            button.classList.add('active');
+            const targetContent = document.getElementById(targetTab);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        });
+    });
+}
+
+// Modal Functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function switchModal(currentModalId, targetModalId) {
+    closeModal(currentModalId);
+    setTimeout(() => {
+        openModal(targetModalId);
+    }, 100);
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+});
+
+// Handle form submissions
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add login logic here
+            showNotification('Login functionality coming soon!', 'info');
+            closeModal('loginModal');
+        });
+    }
+    
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Add registration logic here
+            showNotification('Registration functionality coming soon!', 'info');
+            closeModal('registerModal');
+        });
+    }
+});

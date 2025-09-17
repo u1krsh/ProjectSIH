@@ -7,7 +7,7 @@ class ChatbotService {
     constructor() {
         this.responses = {
             greetings: [
-                "नमस्ते! Welcome to Jharkhand Tourism! 🙏 I'm here to help you discover the incredible beauty of Jharkhand. What interests you most?",
+                "नमस्ते! Welcome to Tribal Trails! 🙏 I'm here to help you discover the incredible beauty of Jharkhand. What interests you most?",
                 "Hello! Welcome to the land of forests and waterfalls! 🌲💧 How can I help you explore Jharkhand today?",
                 "Namaste! Ready to discover Jharkhand's hidden gems? 🏔️ I'm your personal tourism guide!"
             ],
@@ -40,7 +40,7 @@ class ChatbotService {
                 itinerary: "📅 **Popular Itineraries:**\n\n**2-3 Days:** Ranchi + Hundru Falls + Netarhat\n**4-5 Days:** Above + Betla National Park\n**7 Days:** Complete Jharkhand tour with tribal villages\n\nHow many days do you have for your trip?"
             },
             emergency: {
-                contacts: "🚨 **Emergency Contacts:**\n\n• **Police:** 100\n• **Medical Emergency:** 108\n• **Fire Service:** 101\n• **Tourist Helpline:** 1363\n• **Disaster Management:** 108\n\n**Tourist Support:**\n• Jharkhand Tourism: +91-651-2446441\n• 24/7 Helpline: 1363",
+                contacts: "🚨 **Emergency Contacts:**\n\n• **Police:** 100\n• **Medical Emergency:** 108\n• **Fire Service:** 101\n• **Tourist Helpline:** 1363\n• **Disaster Management:** 108\n\n**Tourist Support:**\n• Tribal Trails: +91-651-2446441\n• 24/7 Helpline: 1363",
                 safety: "🛡️ **Safety Tips:**\n\n• Carry ID proofs always\n• Inform someone about your itinerary\n• Use registered tour operators\n• Respect local customs\n• Stay in groups during night time\n• Keep emergency contacts handy"
             }
         };
@@ -335,7 +335,7 @@ class ChatbotService {
     async getDefaultResponse(message) {
         // Analyze message for keywords and provide intelligent response
         const keywordResponses = {
-            'booking': "For bookings, I recommend contacting authorized tour operators or visiting the official Jharkhand Tourism website. Would you like me to provide contact details?",
+            'booking': "For bookings, I recommend contacting authorized tour operators or visiting the official Tribal Trails website. Would you like me to provide contact details?",
             'cost': "Costs vary by destination and season. Most natural sites have minimal entry fees (₹10-50). Accommodation ranges from ₹500-5000+ per night. Would you like specific budget information?",
             'best time': "The best time to visit Jharkhand is October to March when the weather is pleasant. Waterfalls are best during monsoon (July-September). Which specific destination interests you?",
             'distance': "I can help with distances between cities and attractions. Which route are you planning? From which city will you be traveling?",

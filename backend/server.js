@@ -1,5 +1,5 @@
 const express = require('express');
-const mongoose = require('mongoose');
+const mysql = require('mysql2/promise');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -9,35 +9,53 @@ const dotenv = require('dotenv');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
+const fs = require('fs');
 
 // Load environment variables
 dotenv.config();
-
-// Import routes
-const authRoutes = require('./routes/auth');
-const destinationRoutes = require('./routes/destinations');
-const bookingRoutes = require('./routes/bookings');
-const userRoutes = require('./routes/users');
-const analyticsRoutes = require('./routes/analytics');
-const chatbotRoutes = require('./routes/chatbot');
-const weatherRoutes = require('./routes/weather');
-const reviewRoutes = require('./routes/reviews');
-
-// Import middleware
-const errorHandler = require('./middleware/errorHandler');
-const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
         origin: process.env.CLIENT_URL || "http://localhost:3000",
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST", "PUT", "DELETE"]
     }
 });
 
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/jharkhand-tourism';
+
+// MySQL Database Configuration
+const dbConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'jharkhand_tourism',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    acquireTimeout: 60000,
+    timeout: 60000,
+    reconnect: true
+};
+
+// Create MySQL connection pool
+const db = mysql.createPool(dbConfig);
+
+// Test database connection
+async function testConnection() {
+    try {
+        const connection = await db.getConnection();
+        console.log('✅ Database connected successfully');
+        connection.release();
+    } catch (error) {
+        console.error('❌ Database connection failed:', error.message);
+        process.exit(1);
+    }
+}
+
+// Make database connection available to routes
+app.set('db', db);
 
 // Security middleware
 app.use(helmet({
@@ -83,21 +101,26 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Create upload directories if they don't exist
+const uploadDirs = [
+    'uploads',
+    'uploads/marketplace',
+    'uploads/folklore',
+    'uploads/folklore/audio',
+    'uploads/folklore/images',
+    'uploads/homestays'
+];
+
+uploadDirs.forEach(dir => {
+    const fullPath = path.join(__dirname, dir);
+    if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+        console.log(`Created directory: ${fullPath}`);
+    }
+});
+
 // Static file serving
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Database connection
-mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => {
-    console.log('✅ Connected to MongoDB');
-})
-.catch((error) => {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
-});
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
@@ -145,14 +168,14 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/destinations', destinationRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/users', authenticateToken, userRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/chatbot', chatbotRoutes);
-app.use('/api/weather', weatherRoutes);
-app.use('/api/reviews', reviewRoutes);
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/marketplace', require('./routes/marketplace'));
+app.use('/api/folklore', require('./routes/folklore'));
+app.use('/api/homestays', require('./routes/homestays'));
+app.use('/api/forum', require('./routes/forum'));
+app.use('/api/destinations', require('./routes/destinations'));
+app.use('/api/chatbot', require('./routes/chatbot'));
+app.use('/api/weather', require('./routes/weather'));
 
 // Serve static files from frontend
 if (process.env.NODE_ENV === 'production') {
@@ -190,7 +213,7 @@ async function processChatbotMessage(message, userId) {
     // Simple rule-based responses
     if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('namaste')) {
         return {
-            message: 'Namaste! Welcome to Jharkhand Tourism. How can I help you explore our beautiful state?',
+            message: 'Namaste! Welcome to Tribal Trails. How can I help you explore our beautiful state?',
             suggestions: ['Popular destinations', 'Weather info', 'Cultural sites', 'Plan a trip']
         };
     }
@@ -224,10 +247,43 @@ async function processChatbotMessage(message, userId) {
 }
 
 // Start server
-server.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🌐 Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
+async function startServer() {
+    try {
+        await testConnection();
+        
+        server.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+            console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+            console.log(`🌐 Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
+            console.log(`📁 Upload directories created`);
+            console.log(`🔗 API available at http://localhost:${PORT}/api`);
+            console.log(`❤️  Health check at http://localhost:${PORT}/health`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
+}
+
+startServer();
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+        console.log('HTTP server closed');
+    });
+    await db.end();
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    console.log('SIGINT received, shutting down gracefully');
+    server.close(() => {
+        console.log('HTTP server closed');
+    });
+    await db.end();
+    process.exit(0);
 });
 
 module.exports = { app, io };

@@ -1,10 +1,18 @@
 const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const auth = require('../middleware/auth');
+const { body, validationResult } = require('express-validator');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
+const router = express.Router();
+
+// Get database connection from app
+let db;
+router.use((req, res, next) => {
+    db = req.app.get('db');
+    next();
+});
 
 // Rate limiting for auth routes
 const authLimiter = rateLimit({
@@ -25,89 +33,168 @@ const loginLimiter = rateLimit({
     }
 });
 
-// POST /api/auth/register - Register new user
-router.post('/register', authLimiter, async (req, res) => {
+// Validation middleware
+const validateRegistration = [
+    body('firstName').trim().isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters'),
+    body('lastName').trim().isLength({ min: 2, max: 50 }).withMessage('Last name must be 2-50 characters'),
+    body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+    body('phone').isMobilePhone('en-IN').withMessage('Please provide a valid Indian phone number'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Password must contain uppercase, lowercase and number'),
+    body('userType').isIn(['tourist', 'local', 'guide', 'homestay', 'artisan', 'business']).withMessage('Invalid user type')
+];
+
+const validateLogin = [
+    body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+    body('password').notEmpty().withMessage('Password is required')
+];
+
+// Email transporter configuration
+const emailTransporter = nodemailer.createTransporter({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: process.env.SMTP_PORT || 587,
+    secure: false,
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+    }
+});
+
+// Generate JWT tokens
+const generateTokens = (userId) => {
+    const accessToken = jwt.sign(
+        { userId, type: 'access' },
+        process.env.JWT_SECRET || 'fallback-secret',
+        { expiresIn: '15m' }
+    );
+    
+    const refreshToken = jwt.sign(
+        { userId, type: 'refresh' },
+        process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
+        { expiresIn: '7d' }
+    );
+    
+    return { accessToken, refreshToken };
+};
+
+// @route   POST /api/auth/register
+// @desc    Register new user
+// @access  Public
+router.post('/register', authLimiter, validateRegistration, async (req, res) => {
     try {
-        const { 
-            name, 
-            email, 
-            password, 
-            phone, 
-            preferences,
-            emergencyContact 
-        } = req.body;
-
-        // Validation
-        if (!name || !email || !password) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
             return res.status(400).json({
                 success: false,
-                message: 'Name, email, and password are required'
+                message: 'Validation errors',
+                errors: errors.array()
             });
         }
 
-        if (password.length < 6) {
-            return res.status(400).json({
-                success: false,
-                message: 'Password must be at least 6 characters long'
-            });
-        }
+        const { firstName, lastName, email, phone, password, userType } = req.body;
 
         // Check if user already exists
-        const existingUser = await User.findOne({ email: email.toLowerCase() });
-        if (existingUser) {
+        const [existingUsers] = await db.execute(
+            'SELECT id FROM users WHERE email = ? OR phone = ?',
+            [email, phone]
+        );
+
+        if (existingUsers.length > 0) {
             return res.status(400).json({
                 success: false,
-                message: 'User with this email already exists'
+                message: 'User with this email or phone already exists'
             });
         }
 
         // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const saltRounds = 12;
+        const passwordHash = await bcrypt.hash(password, saltRounds);
 
-        // Create user
-        const user = new User({
-            name: name.trim(),
-            email: email.toLowerCase().trim(),
-            password: hashedPassword,
-            phone: phone ? phone.trim() : undefined,
-            preferences: preferences || {
-                interests: [],
-                language: 'en',
-                notifications: {
-                    email: true,
-                    sms: false,
-                    push: true
-                }
-            },
-            emergencyContact: emergencyContact || {}
-        });
+        // Generate email verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-        await user.save();
-
-        // Generate JWT token
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '7d' }
+        // Insert user
+        const [result] = await db.execute(
+            `INSERT INTO users (first_name, last_name, email, phone, password_hash, user_type) 
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [firstName, lastName, email, phone, passwordHash, userType]
         );
 
-        // Return user data (without password)
-        const userResponse = {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            preferences: user.preferences,
-            createdAt: user.createdAt
-        };
+        const userId = result.insertId;
+
+        // Insert email verification record
+        await db.execute(
+            'INSERT INTO email_verifications (user_id, verification_token, expires_at) VALUES (?, ?, ?)',
+            [userId, verificationToken, verificationExpires]
+        );
+
+        // Send verification email
+        const verificationUrl = `${process.env.CLIENT_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+        
+        try {
+            await emailTransporter.sendMail({
+                from: process.env.FROM_EMAIL || 'noreply@jharkhantourism.com',
+                to: email,
+                subject: 'Verify your Tribal Trails account',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #1B4D3E;">Welcome to Tribal Trails!</h2>
+                        <p>Hello ${firstName},</p>
+                        <p>Thank you for joining our community! Please verify your email address by clicking the button below:</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${verificationUrl}" 
+                               style="background: #1B4D3E; color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">
+                                Verify Email Address
+                            </a>
+                        </div>
+                        <p>Or copy and paste this link into your browser:</p>
+                        <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
+                        <p>This link will expire in 24 hours.</p>
+                        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                        <p style="font-size: 12px; color: #666;">
+                            If you didn't create this account, please ignore this email.
+                        </p>
+                    </div>
+                `
+            });
+        } catch (emailError) {
+            console.error('Email sending failed:', emailError);
+            // Continue with registration even if email fails
+        }
+
+        // Generate tokens
+        const { accessToken, refreshToken } = generateTokens(userId);
+
+        // Store session
+        await db.execute(
+            `INSERT INTO user_sessions (user_id, session_token, refresh_token, ip_address, user_agent, expires_at)
+             VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))`,
+            [userId, accessToken, refreshToken, req.ip, req.get('User-Agent')]
+        );
+
+        // Log activity
+        await db.execute(
+            'INSERT INTO activity_logs (user_id, activity_type, activity_description, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
+            [userId, 'user_register', `User registered with type: ${userType}`, req.ip, req.get('User-Agent')]
+        );
 
         res.status(201).json({
             success: true,
-            message: 'User registered successfully',
+            message: 'Registration successful. Please check your email to verify your account.',
             data: {
-                user: userResponse,
-                token
+                user: {
+                    id: userId,
+                    firstName,
+                    lastName,
+                    email,
+                    userType,
+                    isVerified: false
+                },
+                tokens: {
+                    accessToken,
+                    refreshToken
+                }
             }
         });
 
@@ -115,36 +202,52 @@ router.post('/register', authLimiter, async (req, res) => {
         console.error('Registration error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error registering user',
-            error: error.message
+            message: 'Internal server error during registration'
         });
     }
 });
 
-// POST /api/auth/login - Login user
-router.post('/login', loginLimiter, async (req, res) => {
+// @route   POST /api/auth/login
+// @desc    Login user
+// @access  Public
+router.post('/login', loginLimiter, validateLogin, async (req, res) => {
     try {
-        const { email, password, rememberMe } = req.body;
-
-        // Validation
-        if (!email || !password) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
             return res.status(400).json({
                 success: false,
-                message: 'Email and password are required'
+                message: 'Validation errors',
+                errors: errors.array()
             });
         }
 
-        // Find user
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) {
+        const { email, password, remember } = req.body;
+
+        // Get user
+        const [users] = await db.execute(
+            'SELECT id, first_name, last_name, email, phone, password_hash, user_type, email_verified, is_active FROM users WHERE email = ?',
+            [email]
+        );
+
+        if (users.length === 0) {
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
             });
         }
 
-        // Check password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const user = users[0];
+
+        // Check if account is active
+        if (!user.is_active) {
+            return res.status(401).json({
+                success: false,
+                message: 'Account has been deactivated. Please contact support.'
+            });
+        }
+
+        // Verify password
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
@@ -153,34 +256,46 @@ router.post('/login', loginLimiter, async (req, res) => {
         }
 
         // Update last login
-        user.lastLogin = new Date();
-        await user.save();
+        await db.execute('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
 
-        // Generate JWT token
-        const tokenExpiry = rememberMe ? '30d' : '7d';
-        const token = jwt.sign(
-            { userId: user._id },
-            process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: tokenExpiry }
+        // Generate tokens
+        const { accessToken, refreshToken } = generateTokens(user.id);
+
+        // Set token expiry based on remember me
+        const expiresAt = remember ? 
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : 
+            new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+        // Store session
+        await db.execute(
+            `INSERT INTO user_sessions (user_id, session_token, refresh_token, ip_address, user_agent, expires_at)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [user.id, accessToken, refreshToken, req.ip, req.get('User-Agent'), expiresAt]
         );
 
-        // Return user data (without password)
-        const userResponse = {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            preferences: user.preferences,
-            createdAt: user.createdAt,
-            lastLogin: user.lastLogin
-        };
+        // Log activity
+        await db.execute(
+            'INSERT INTO activity_logs (user_id, activity_type, activity_description, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
+            [user.id, 'user_login', 'User logged in successfully', req.ip, req.get('User-Agent')]
+        );
 
         res.json({
             success: true,
             message: 'Login successful',
             data: {
-                user: userResponse,
-                token
+                user: {
+                    id: user.id,
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    email: user.email,
+                    phone: user.phone,
+                    userType: user.user_type,
+                    isVerified: user.email_verified
+                },
+                tokens: {
+                    accessToken,
+                    refreshToken
+                }
             }
         });
 
@@ -188,278 +303,139 @@ router.post('/login', loginLimiter, async (req, res) => {
         console.error('Login error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error logging in',
-            error: error.message
+            message: 'Internal server error during login'
         });
     }
 });
 
-// POST /api/auth/logout - Logout user (optional for JWT)
-router.post('/logout', auth, (req, res) => {
-    // For JWT, logout is mainly handled on frontend by removing token
-    // Could implement token blacklisting for enhanced security
-    res.json({
-        success: true,
-        message: 'Logged out successfully'
-    });
-});
-
-// GET /api/auth/me - Get current user profile
-router.get('/me', auth, async (req, res) => {
+// @route   POST /api/auth/logout
+// @desc    Logout user
+// @access  Private
+router.post('/logout', async (req, res) => {
     try {
-        const user = await User.findById(req.user.userId)
-            .select('-password')
-            .populate('bookings.destination', 'name location images');
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
+        const token = req.headers.authorization?.split(' ')[1];
+        
+        if (token) {
+            // Deactivate session
+            await db.execute(
+                'UPDATE user_sessions SET is_active = FALSE WHERE session_token = ?',
+                [token]
+            );
         }
 
         res.json({
             success: true,
-            data: user
+            message: 'Logged out successfully'
         });
 
     } catch (error) {
-        console.error('Get profile error:', error);
+        console.error('Logout error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching user profile',
-            error: error.message
+            message: 'Internal server error during logout'
         });
     }
 });
 
-// PUT /api/auth/profile - Update user profile
-router.put('/profile', auth, async (req, res) => {
+// @route   POST /api/auth/refresh
+// @desc    Refresh access token
+// @access  Public
+router.post('/refresh', async (req, res) => {
     try {
-        const { name, phone, preferences, emergencyContact } = req.body;
+        const { refreshToken } = req.body;
 
-        const updateData = {};
-        if (name) updateData.name = name.trim();
-        if (phone) updateData.phone = phone.trim();
-        if (preferences) updateData.preferences = { ...updateData.preferences, ...preferences };
-        if (emergencyContact) updateData.emergencyContact = { ...updateData.emergencyContact, ...emergencyContact };
-
-        const user = await User.findByIdAndUpdate(
-            req.user.userId,
-            updateData,
-            { new: true, runValidators: true }
-        ).select('-password');
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-
-        res.json({
-            success: true,
-            message: 'Profile updated successfully',
-            data: user
-        });
-
-    } catch (error) {
-        console.error('Update profile error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error updating profile',
-            error: error.message
-        });
-    }
-});
-
-// POST /api/auth/change-password - Change password
-router.post('/change-password', auth, async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-
-        if (!currentPassword || !newPassword) {
-            return res.status(400).json({
-                success: false,
-                message: 'Current password and new password are required'
-            });
-        }
-
-        if (newPassword.length < 6) {
-            return res.status(400).json({
-                success: false,
-                message: 'New password must be at least 6 characters long'
-            });
-        }
-
-        // Find user with password
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-
-        // Verify current password
-        const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
-        if (!isCurrentPasswordValid) {
+        if (!refreshToken) {
             return res.status(401).json({
                 success: false,
-                message: 'Current password is incorrect'
+                message: 'Refresh token required'
             });
         }
 
-        // Hash new password
-        const salt = await bcrypt.genSalt(10);
-        const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+        // Verify refresh token
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret');
 
-        // Update password
-        user.password = hashedNewPassword;
-        await user.save();
+        // Check if session is active
+        const [sessions] = await db.execute(
+            'SELECT user_id FROM user_sessions WHERE refresh_token = ? AND is_active = TRUE AND expires_at > NOW()',
+            [refreshToken]
+        );
+
+        if (sessions.length === 0) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid or expired refresh token'
+            });
+        }
+
+        // Generate new tokens
+        const { accessToken, refreshToken: newRefreshToken } = generateTokens(decoded.userId);
+
+        // Update session
+        await db.execute(
+            'UPDATE user_sessions SET session_token = ?, refresh_token = ? WHERE refresh_token = ?',
+            [accessToken, newRefreshToken, refreshToken]
+        );
 
         res.json({
             success: true,
-            message: 'Password changed successfully'
+            data: {
+                accessToken,
+                refreshToken: newRefreshToken
+            }
         });
 
     } catch (error) {
-        console.error('Change password error:', error);
-        res.status(500).json({
+        console.error('Token refresh error:', error);
+        res.status(401).json({
             success: false,
-            message: 'Error changing password',
-            error: error.message
+            message: 'Invalid refresh token'
         });
     }
 });
 
-// POST /api/auth/forgot-password - Forgot password (placeholder)
-router.post('/forgot-password', authLimiter, async (req, res) => {
+// @route   POST /api/auth/verify-email
+// @desc    Verify email address
+// @access  Public
+router.post('/verify-email', async (req, res) => {
     try {
-        const { email } = req.body;
+        const { token } = req.body;
 
-        if (!email) {
+        if (!token) {
             return res.status(400).json({
                 success: false,
-                message: 'Email is required'
+                message: 'Verification token required'
             });
         }
 
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) {
-            // Don't reveal if email exists or not for security
-            return res.json({
-                success: true,
-                message: 'If an account with this email exists, password reset instructions have been sent.'
-            });
-        }
+        // Check verification token
+        const [verifications] = await db.execute(
+            'SELECT user_id FROM email_verifications WHERE verification_token = ? AND expires_at > NOW() AND is_used = FALSE',
+            [token]
+        );
 
-        // TODO: Implement email sending logic
-        // For now, just log the reset request
-        console.log(`Password reset requested for: ${email}`);
-
-        res.json({
-            success: true,
-            message: 'If an account with this email exists, password reset instructions have been sent.'
-        });
-
-    } catch (error) {
-        console.error('Forgot password error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error processing forgot password request',
-            error: error.message
-        });
-    }
-});
-
-// GET /api/auth/bookings - Get user's bookings
-router.get('/bookings', auth, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.userId)
-            .populate('bookings.destination', 'name location images rating')
-            .select('bookings');
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
-
-        res.json({
-            success: true,
-            data: user.bookings || []
-        });
-
-    } catch (error) {
-        console.error('Get bookings error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error fetching bookings',
-            error: error.message
-        });
-    }
-});
-
-// POST /api/auth/booking - Add new booking
-router.post('/booking', auth, async (req, res) => {
-    try {
-        const { 
-            destinationId, 
-            bookingType, 
-            visitDate, 
-            numberOfPeople, 
-            specialRequests,
-            contactInfo
-        } = req.body;
-
-        if (!destinationId || !bookingType || !visitDate || !numberOfPeople) {
+        if (verifications.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Destination, booking type, visit date, and number of people are required'
+                message: 'Invalid or expired verification token'
             });
         }
 
-        const user = await User.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
+        const userId = verifications[0].user_id;
 
-        const booking = {
-            destination: destinationId,
-            bookingType,
-            visitDate: new Date(visitDate),
-            numberOfPeople: parseInt(numberOfPeople),
-            specialRequests: specialRequests || '',
-            contactInfo: contactInfo || {},
-            status: 'pending',
-            bookedAt: new Date()
-        };
+        // Mark user as verified and token as used
+        await db.execute('UPDATE users SET email_verified = TRUE WHERE id = ?', [userId]);
+        await db.execute('UPDATE email_verifications SET is_used = TRUE WHERE verification_token = ?', [token]);
 
-        user.bookings.push(booking);
-        await user.save();
-
-        // Populate the new booking
-        await user.populate('bookings.destination', 'name location images rating');
-
-        const newBooking = user.bookings[user.bookings.length - 1];
-
-        res.status(201).json({
+        res.json({
             success: true,
-            message: 'Booking request submitted successfully',
-            data: newBooking
+            message: 'Email verified successfully'
         });
 
     } catch (error) {
-        console.error('Create booking error:', error);
+        console.error('Email verification error:', error);
         res.status(500).json({
             success: false,
-            message: 'Error creating booking',
-            error: error.message
+            message: 'Internal server error during email verification'
         });
     }
 });

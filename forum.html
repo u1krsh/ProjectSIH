@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Forum - Connect with Fellow Travelers</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/forum.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-logo-container">
+                    <div class="logo-icon-group">
+                        <i class="fas fa-mountain logo-mountain"></i>
+                        <i class="fas fa-route logo-trail"></i>
+                    </div>
+                    <div class="logo-accent"></div>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text-main">Tribal</span>
+                    <span class="brand-text-sub">Trails</span>
+                </div>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="marketplace.html" class="nav-link">Marketplace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="folklore.html" class="nav-link">Folklore</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="homestays.html" class="nav-link">Homestays</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="forum.html" class="nav-link active">Community</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Forum Hero Section -->
+    <section class="forum-hero">
+        <div class="hero-background">
+            <div class="floating-elements">
+                <div class="floating-element">💬</div>
+                <div class="floating-element">🤝</div>
+                <div class="floating-element">🗣️</div>
+                <div class="floating-element">✨</div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-main">
+                    <h1 class="hero-title">Community Forum</h1>
+                    <p class="hero-description">Connect with fellow travelers, share experiences, and get advice from locals and other visitors to Jharkhand's tribal regions.</p>
+                    
+                    <!-- Community Stats -->
+                    <div class="community-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" data-count="1247">0</div>
+                            <div class="stat-label">Active Members</div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-count="342">0</div>
+                            <div class="stat-label">Discussions</div>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <div class="stat-number" data-count="2156">0</div>
+                            <div class="stat-label">Posts Today</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="forum-search-bar">
+                        <div class="search-input-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" placeholder="Search discussions, members, or topics..." class="search-input">
+                            <button class="search-btn">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="hero-actions">
+                        <button class="btn btn-primary start-discussion-btn">
+                            <i class="fas fa-plus"></i>
+                            Start Discussion
+                        </button>
+                        <button class="btn btn-secondary browse-topics-btn">
+                            <i class="fas fa-compass"></i>
+                            Browse Topics
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Forum Categories Section -->
+    <section class="forum-categories-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Explore Topics</h2>
+                <p>Join conversations that matter to the tribal tourism community</p>
+            </div>
+            
+            <div class="categories-grid">
+                <div class="category-card" data-category="travel-tips">
+                    <div class="category-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Travel Tips & Guides</h3>
+                        <p class="category-description">Share and discover insider tips for exploring Jharkhand's tribal regions</p>
+                        <div class="category-stats">
+                            <span class="post-count">156 posts</span>
+                            <span class="member-count">89 members</span>
+                        </div>
+                    </div>
+                    <div class="category-activity">
+                        <div class="recent-post">
+                            <span class="post-title">Best time to visit Santhal villages</span>
+                            <span class="post-time">2 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="cultural-exchange">
+                    <div class="category-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Cultural Exchange</h3>
+                        <p class="category-description">Connect with tribal communities and learn about their rich traditions</p>
+                        <div class="category-stats">
+                            <span class="post-count">203 posts</span>
+                            <span class="member-count">134 members</span>
+                        </div>
+                    </div>
+                    <div class="category-activity">
+                        <div class="recent-post">
+                            <span class="post-title">Oraon festivals and celebrations</span>
+                            <span class="post-time">45 minutes ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="local-events">
+                    <div class="category-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Local Events & Festivals</h3>
+                        <p class="category-description">Stay updated on upcoming cultural events and community gatherings</p>
+                        <div class="category-stats">
+                            <span class="post-count">87 posts</span>
+                            <span class="member-count">67 members</span>
+                        </div>
+                    </div>
+                    <div class="category-activity">
+                        <div class="recent-post">
+                            <span class="post-title">Sarhul festival dates 2025</span>
+                            <span class="post-time">1 hour ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="qa-help">
+                    <div class="category-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Q&A & Help</h3>
+                        <p class="category-description">Get answers from experienced travelers and local guides</p>
+                        <div class="category-stats">
+                            <span class="post-count">298 posts</span>
+                            <span class="member-count">178 members</span>
+                        </div>
+                    </div>
+                    <div class="category-activity">
+                        <div class="recent-post">
+                            <span class="post-title">Transport to remote villages?</span>
+                            <span class="post-time">30 minutes ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="photo-sharing">
+                    <div class="category-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Photo Stories</h3>
+                        <p class="category-description">Share your visual journey through Jharkhand's tribal landscapes</p>
+                        <div class="category-stats">
+                            <span class="post-count">412 posts</span>
+                            <span class="member-count">256 members</span>
+                        </div>
+                    </div>
+                    <div class="category-activity">
+                        <div class="recent-post">
+                            <span class="post-title">Morning mist in Betla National Park</span>
+                            <span class="post-time">3 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-card" data-category="marketplace-discussion">
+                    <div class="category-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="category-content">
+                        <h3 class="category-title">Marketplace Discussion</h3>
+                        <p class="category-description">Discuss authentic tribal crafts, artwork, and local products</p>
+                        <div class="category-stats">
+                            <span class="post-count">124 posts</span>
+                            <span class="member-count">95 members</span>
+                        </div>
+                    </div>
+                    <div class="category-activity">
+                        <div class="recent-post">
+                            <span class="post-title">Authentic Dokra art pieces</span>
+                            <span class="post-time">4 hours ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Discussions Section -->
+    <section class="trending-discussions">
+        <div class="container">
+            <div class="section-header">
+                <h2>Trending Discussions</h2>
+                <p>Popular conversations in the community right now</p>
+            </div>
+            
+            <div class="discussions-container">
+                <div class="discussion-thread" data-thread-id="1">
+                    <div class="thread-avatar">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" alt="User Avatar">
+                        <div class="online-indicator"></div>
+                    </div>
+                    <div class="thread-content">
+                        <h3 class="thread-title">Planning first visit to Jharkhand - need advice!</h3>
+                        <p class="thread-preview">Hey everyone! I'm planning my first trip to explore the tribal regions of Jharkhand next month. Looking for recommendations on...</p>
+                        <div class="thread-meta">
+                            <span class="author">by Priya Sharma</span>
+                            <span class="category-tag">Travel Tips</span>
+                            <span class="reply-count"><i class="fas fa-comments"></i> 23 replies</span>
+                            <span class="view-count"><i class="fas fa-eye"></i> 156 views</span>
+                            <span class="last-activity">2 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="thread-engagement">
+                        <div class="engagement-stats">
+                            <button class="like-btn">
+                                <i class="fas fa-heart"></i>
+                                <span>12</span>
+                            </button>
+                            <button class="bookmark-btn">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="discussion-thread" data-thread-id="2">
+                    <div class="thread-avatar">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" alt="User Avatar">
+                        <div class="online-indicator"></div>
+                    </div>
+                    <div class="thread-content">
+                        <h3 class="thread-title">Amazing Santhali folk dance performance last weekend</h3>
+                        <p class="thread-preview">Just witnessed the most incredible traditional dance performance in Dumka! The Santhali dancers were absolutely mesmerizing...</p>
+                        <div class="thread-meta">
+                            <span class="author">by Rajesh Kumar</span>
+                            <span class="category-tag">Cultural Exchange</span>
+                            <span class="reply-count"><i class="fas fa-comments"></i> 18 replies</span>
+                            <span class="view-count"><i class="fas fa-eye"></i> 89 views</span>
+                            <span class="last-activity">4 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="thread-engagement">
+                        <div class="engagement-stats">
+                            <button class="like-btn active">
+                                <i class="fas fa-heart"></i>
+                                <span>24</span>
+                            </button>
+                            <button class="bookmark-btn">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="discussion-thread" data-thread-id="3">
+                    <div class="thread-avatar">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=50&h=50&fit=crop&crop=face" alt="User Avatar">
+                    </div>
+                    <div class="thread-content">
+                        <h3 class="thread-title">Best homestays for authentic tribal experience?</h3>
+                        <p class="thread-preview">Looking for recommendations for homestays that offer genuine cultural immersion. Has anyone stayed with Oraon families?</p>
+                        <div class="thread-meta">
+                            <span class="author">by Maya Patel</span>
+                            <span class="category-tag">Q&A & Help</span>
+                            <span class="reply-count"><i class="fas fa-comments"></i> 31 replies</span>
+                            <span class="view-count"><i class="fas fa-eye"></i> 203 views</span>
+                            <span class="last-activity">6 hours ago</span>
+                        </div>
+                    </div>
+                    <div class="thread-engagement">
+                        <div class="engagement-stats">
+                            <button class="like-btn">
+                                <i class="fas fa-heart"></i>
+                                <span>8</span>
+                            </button>
+                            <button class="bookmark-btn active">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="view-all-discussions">
+                <button class="btn btn-outline">
+                    <i class="fas fa-arrow-right"></i>
+                    View All Discussions
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Highlights Section -->
+    <section class="community-highlights">
+        <div class="container">
+            <div class="section-header">
+                <h2>Community Highlights</h2>
+                <p>Celebrating our amazing community members and achievements</p>
+            </div>
+            
+            <div class="highlights-grid">
+                <div class="highlight-card featured-members">
+                    <div class="card-header">
+                        <h3><i class="fas fa-star"></i> Featured Members</h3>
+                    </div>
+                    <div class="members-list">
+                        <div class="member-item">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face" alt="Member">
+                            <div class="member-info">
+                                <h4>Priya Sharma</h4>
+                                <p>Cultural Enthusiast</p>
+                                <span class="member-badge">Top Contributor</span>
+                            </div>
+                        </div>
+                        <div class="member-item">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Member">
+                            <div class="member-info">
+                                <h4>Rajesh Kumar</h4>
+                                <p>Local Guide</p>
+                                <span class="member-badge">Community Helper</span>
+                            </div>
+                        </div>
+                        <div class="member-item">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b5bb?w=40&h=40&fit=crop&crop=face" alt="Member">
+                            <div class="member-info">
+                                <h4>Maya Patel</h4>
+                                <p>Travel Blogger</p>
+                                <span class="member-badge">Rising Star</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-card recent-achievements">
+                    <div class="card-header">
+                        <h3><i class="fas fa-trophy"></i> Recent Achievements</h3>
+                    </div>
+                    <div class="achievements-list">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🎯</div>
+                            <div class="achievement-info">
+                                <h4>1000+ Active Members</h4>
+                                <p>Community milestone reached!</p>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">📸</div>
+                            <div class="achievement-info">
+                                <h4>Photo Contest Winner</h4>
+                                <p>"Sunrise over Deoghar" by Amit Sen</p>
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">🌟</div>
+                            <div class="achievement-info">
+                                <h4>Most Helpful Post</h4>
+                                <p>"Complete Jharkhand Travel Guide"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-card community-stats">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> This Week</h3>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">47</div>
+                            <div class="stat-label">New Members</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">123</div>
+                            <div class="stat-label">New Posts</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">89</div>
+                            <div class="stat-label">Active Discussions</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">256</div>
+                            <div class="stat-label">Replies</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/main.js"></script>
+    <script src="js/forum.js"></script>
+</body>
+</html>
