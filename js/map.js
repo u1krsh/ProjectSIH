@@ -870,7 +870,7 @@ class JharkhandMap {
     }
     
     createMarker(destination) {
-        // Create custom icon based on type with FontAwesome icons
+        // Create custom icon based on type with both emojis and FontAwesome icons
         const iconMap = {
             wildlife: 'fas fa-paw',
             natural: 'fas fa-tint',
@@ -880,11 +880,22 @@ class JharkhandMap {
             tourist: 'fas fa-camera'
         };
         
+        const emojiMap = {
+            wildlife: '🐅',
+            natural: '💧',
+            adventure: '🏔️',
+            religious: '🛕',
+            cultural: '🏛️',
+            tourist: '📸'
+        };
+        
         const customIcon = L.divIcon({
             className: `custom-marker ${destination.type}`,
             html: `
                 <div class="marker-pin">
-                    <i class="marker-icon ${iconMap[destination.type] || 'fas fa-map-marker-alt'}"></i>
+                    <div class="marker-emoji-container">
+                        <span class="marker-emoji">${emojiMap[destination.type] || '📍'}</span>
+                    </div>
                 </div>
             `,
             iconSize: [40, 50],
@@ -1300,31 +1311,31 @@ class JharkhandMap {
                 <h4><i class="fas fa-map-marked-alt"></i> Location Types</h4>
                 <div class="legend-item">
                     <div class="legend-color marker-wildlife">
-                        <i class="fas fa-paw"></i>
+                        <span class="legend-emoji">🐅</span>
                     </div>
                     <span>Wildlife & Nature Reserves</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color marker-natural">
-                        <i class="fas fa-tint"></i>
+                        <span class="legend-emoji">💧</span>
                     </div>
                     <span>Waterfalls & Natural Sites</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color marker-cultural">
-                        <i class="fas fa-landmark"></i>
+                        <span class="legend-emoji">🏛️</span>
                     </div>
                     <span>Cultural & Heritage Sites</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color marker-religious">
-                        <i class="fas fa-place-of-worship"></i>
+                        <span class="legend-emoji">🛕</span>
                     </div>
                     <span>Religious Places</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color marker-adventure">
-                        <i class="fas fa-mountain"></i>
+                        <span class="legend-emoji">🏔️</span>
                     </div>
                     <span>Adventure & Sports</span>
                 </div>
