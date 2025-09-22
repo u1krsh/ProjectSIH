@@ -1442,6 +1442,14 @@
     color: #f1f5f9;
 }
 
+[data-theme="dark"] .map-legend .legend-header:hover {
+    background-color: rgba(241, 245, 249, 0.1);
+}
+
+[data-theme="dark"] .legend-toggle {
+    color: #f1f5f9;
+}
+
 [data-theme="dark"] .legend-item {
     color: #e2e8f0;
 }
@@ -1450,11 +1458,36 @@
     color: #e2e8f0;
 }
 
+.map-legend .legend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    margin-bottom: 15px;
+}
+
+.map-legend .legend-header:hover {
+    background-color: rgba(27, 77, 62, 0.1);
+}
+
 .map-legend h4 {
-    margin: 0 0 15px 0;
+    margin: 0;
     color: #1B4D3E;
     font-size: 1.1rem;
     font-weight: 600;
+}
+
+.legend-toggle {
+    color: #1B4D3E;
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+}
+
+.legend-content {
+    transition: all 0.3s ease;
 }
 
 .legend-item {

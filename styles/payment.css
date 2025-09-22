@@ -1,0 +1,112 @@
+/* styles/payment.css */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #1a1a1a;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.payment-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+.payment-card {
+    background: #2c2c2c;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.card-header {
+    margin-bottom: 25px;
+}
+
+.card-header .fa-shield-alt {
+    font-size: 3rem;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.card-header p {
+    margin: 5px 0 0;
+    color: #b0b0b0;
+    font-size: 1rem;
+}
+
+.qr-code-container {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 15px;
+    display: inline-block;
+}
+
+.qr-code-container img {
+    display: block;
+    width: 100%;
+    max-width: 250px;
+}
+
+.payment-details {
+    margin-bottom: 25px;
+    text-align: left;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px 0;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 1.1rem;
+}
+
+.detail-item .label {
+    color: #b0b0b0;
+}
+
+.detail-item .value {
+    font-weight: 600;
+}
+
+.instructions {
+    margin-bottom: 25px;
+    font-size: 0.9rem;
+    color: #b0b0b0;
+}
+
+.instructions .fa-info-circle {
+    color: #3498db;
+    margin-right: 5px;
+}
+
+.payment-footer .back-link {
+    color: #3498db;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.payment-footer .back-link:hover {
+    color: #5dade2;
+}
+
+.payment-footer .back-link i {
+    margin-right: 5px;
+}

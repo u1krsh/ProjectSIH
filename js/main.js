@@ -734,6 +734,20 @@ function setupWeatherEvents() {
         });
     }
     
+    // Hide weather widget on scroll
+    window.addEventListener('scroll', function() {
+        const weatherWidget = document.getElementById('weatherWidget');
+        if (!weatherWidget) return;
+
+        if (window.scrollY > 100) {
+            // Scrolled down, hide widget
+            weatherWidget.classList.add('hidden');
+        } else {
+            // At the top, show widget
+            weatherWidget.classList.remove('hidden');
+        }
+    }, { passive: true });
+    
     // Auto-refresh weather every 10 minutes
     setInterval(() => {
         if (userLocation.city) {
@@ -949,16 +963,17 @@ function updateWeatherStyling(condition) {
 }
 
 function showWeatherLoading(show) {
-    const weatherContent = document.querySelector('.weather-content');
-    const weatherLoading = document.querySelector('.weather-loading');
+    const weatherWidget = document.getElementById('weatherWidget');
+    if (!weatherWidget) return;
+
+    const weatherContent = weatherWidget.querySelector('.weather-content');
+    const weatherLoading = weatherWidget.querySelector('.weather-loading');
     
     if (weatherContent && weatherLoading) {
         if (show) {
-            weatherContent.style.display = 'none';
-            weatherLoading.style.display = 'flex';
+            weatherWidget.classList.add('loading');
         } else {
-            weatherContent.style.display = 'block';
-            weatherLoading.style.display = 'none';
+            weatherWidget.classList.remove('loading');
         }
     }
 }

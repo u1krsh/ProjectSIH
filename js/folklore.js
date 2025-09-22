@@ -467,3 +467,60 @@ function createParticleEffect() {
 
 // Initialize particle effect
 setTimeout(createParticleEffect, 1000);
+
+// Animate numbers on load
+function animateValue(obj, start, end, duration, suffix, hasPlus) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const currentValue = Math.floor(progress * (end - start) + start);
+        
+        obj.innerHTML = currentValue.toLocaleString();
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            // Animation finished, set final text
+            let finalHTML = end.toLocaleString();
+            if (hasPlus) {
+                finalHTML += '+';
+            }
+            if (suffix) {
+                finalHTML += ` ${suffix}`;
+            }
+            obj.innerHTML = finalHTML;
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+function initializeNumberAnimations() {
+    // Add a check to prevent re-running
+    if (document.body.classList.contains('numbers-animated')) {
+        return;
+    }
+    document.body.classList.add('numbers-animated');
+
+    const statNumbers = document.querySelectorAll('.stat-number, .community-stats .stat');
+    
+    statNumbers.forEach(stat => {
+        const text = stat.textContent.trim();
+        const match = text.match(/^(\d+)/);
+
+        if (match) {
+            const endValue = parseInt(match[1], 10);
+            if (!isNaN(endValue)) {
+                const hasPlus = text.includes('+');
+                // Extract suffix, but exclude the '+' if it exists
+                const suffix = text.replace(/^(\d+)\+?/, '').trim();
+                
+                // Clear the element before starting animation
+                stat.innerHTML = '0';
+                animateValue(stat, 0, endValue, 1500, suffix, hasPlus);
+            }
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeNumberAnimations);

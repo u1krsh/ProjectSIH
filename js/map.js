@@ -1308,39 +1308,44 @@ class JharkhandMap {
         legend.onAdd = function(map) {
             const div = L.DomUtil.create('div', 'map-legend');
             div.innerHTML = `
-                <h4><i class="fas fa-map-marked-alt"></i> Location Types</h4>
-                <div class="legend-item">
-                    <div class="legend-color marker-wildlife">
-                        <span class="legend-emoji">🐅</span>
-                    </div>
-                    <span>Wildlife & Nature Reserves</span>
+                <div class="legend-header" onclick="toggleMapLegend()">
+                    <h4><i class="fas fa-map-marked-alt"></i> Location Types</h4>
+                    <i class="fas fa-chevron-up legend-toggle" id="legendToggle"></i>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color marker-natural">
-                        <span class="legend-emoji">💧</span>
+                <div class="legend-content" id="legendContent">
+                    <div class="legend-item">
+                        <div class="legend-color marker-wildlife">
+                            <span class="legend-emoji">🐅</span>
+                        </div>
+                        <span>Wildlife & Nature Reserves</span>
                     </div>
-                    <span>Waterfalls & Natural Sites</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color marker-cultural">
-                        <span class="legend-emoji">🏛️</span>
+                    <div class="legend-item">
+                        <div class="legend-color marker-natural">
+                            <span class="legend-emoji">💧</span>
+                        </div>
+                        <span>Waterfalls & Natural Sites</span>
                     </div>
-                    <span>Cultural & Heritage Sites</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color marker-religious">
-                        <span class="legend-emoji">🛕</span>
+                    <div class="legend-item">
+                        <div class="legend-color marker-cultural">
+                            <span class="legend-emoji">🏛️</span>
+                        </div>
+                        <span>Cultural & Heritage Sites</span>
                     </div>
-                    <span>Religious Places</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color marker-adventure">
-                        <span class="legend-emoji">🏔️</span>
+                    <div class="legend-item">
+                        <div class="legend-color marker-religious">
+                            <span class="legend-emoji">🛕</span>
+                        </div>
+                        <span>Religious Places</span>
                     </div>
-                    <span>Adventure & Sports</span>
-                </div>
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 0.85rem; color: #64748b;">
-                    Click markers for details • ${jharkhandMap.destinations.length} locations total
+                    <div class="legend-item">
+                        <div class="legend-color marker-adventure">
+                            <span class="legend-emoji">🏔️</span>
+                        </div>
+                        <span>Adventure & Sports</span>
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 0.85rem; color: #64748b;">
+                        Click markers for details • ${jharkhandMap.destinations.length} locations total
+                    </div>
                 </div>
             `;
             
@@ -1497,6 +1502,39 @@ function createFallbackMap() {
             console.log('Fallback map created successfully');
         } catch (error) {
             console.error('Fallback map creation failed:', error);
+        }
+    }
+}
+
+// Global function to toggle map legend
+function toggleMapLegend() {
+    const legendContent = document.getElementById('legendContent');
+    const legendToggle = document.getElementById('legendToggle');
+    
+    if (legendContent && legendToggle) {
+        const isCollapsed = legendContent.style.display === 'none';
+        
+        if (isCollapsed) {
+            legendContent.style.display = 'block';
+            legendToggle.className = 'fas fa-chevron-up legend-toggle';
+            legendContent.style.opacity = '0';
+            legendContent.style.transform = 'translateY(-10px)';
+            
+            // Animate in
+            setTimeout(() => {
+                legendContent.style.transition = 'all 0.3s ease';
+                legendContent.style.opacity = '1';
+                legendContent.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+            legendContent.style.transition = 'all 0.3s ease';
+            legendContent.style.opacity = '0';
+            legendContent.style.transform = 'translateY(-10px)';
+            legendToggle.className = 'fas fa-chevron-down legend-toggle';
+            
+            setTimeout(() => {
+                legendContent.style.display = 'none';
+            }, 300);
         }
     }
 }

@@ -324,7 +324,7 @@ class TribalMarketplace {
         const totalPrice = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         
         cartCount.textContent = totalItems;
-        cartTotal.textContent = totalPrice;
+        cartTotal.textContent = totalPrice.toLocaleString('en-IN');
         
         if (this.cart.length === 0) {
             cartItems.innerHTML = `
@@ -397,13 +397,16 @@ class TribalMarketplace {
 
     checkout() {
         if (this.cart.length === 0) {
-            alert('Your cart is empty!');
+            if (typeof showNotification === 'function') {
+                showNotification('Your cart is empty!', 'error');
+            } else {
+                alert('Your cart is empty!');
+            }
             return;
         }
         
-        // In a real app, this would redirect to a checkout page
-        alert('Checkout functionality would be implemented here. Total: ₹' + 
-              this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0));
+        const totalPrice = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        window.location.href = `payment.html?amount=${totalPrice}`;
     }
 }
 

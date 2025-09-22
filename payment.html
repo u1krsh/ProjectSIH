@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Payment</title>
+    <link rel="stylesheet" href="../styles/payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="card-header">
+                <i class="fas fa-shield-alt"></i>
+                <h2>Secure Payment</h2>
+                <p>Scan the QR code to complete your purchase</p>
+            </div>
+            <div class="qr-code-container">
+                <img id="qrCodeImg" alt="UPI QR Code">
+            </div>
+            <div class="payment-details">
+                <div class="detail-item">
+                    <span class="label">Amount:</span>
+                    <span class="value"><h2 class="amount" id="paymentAmount">₹0.00</h2></span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">To:</span>
+                    <span class="value">Tribal Artisans Cooperative</span>
+                </div>
+            </div>
+            <div class="instructions">
+                <p><i class="fas fa-info-circle"></i> After payment, please wait for confirmation. Do not close this window.</p>
+            </div>
+            <div class="payment-footer">
+                <a href="marketplace.html" class="back-link"><i class="fas fa-arrow-left"></i> Go Back to Marketplace</a>
+            </div>
+        </div>
+    </div>
+    <script src="js/payment.js"></script>
+    <script>
+        // Cache-busting for payment.js
+        const script = document.querySelector('script[src="js/payment.js"]');
+        if (script) {
+            script.src = `js/payment.js?v=${new Date().getTime()}`;
+        }
+    </script>
+</body>
+</html>

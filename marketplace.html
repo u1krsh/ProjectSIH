@@ -47,16 +47,6 @@
             </div>
             
             <div class="nav-actions">
-                <div class="user-menu" id="userMenu">
-                    <button class="auth-btn login-btn" onclick="openModal('loginModal')">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Login</span>
-                    </button>
-                    <button class="auth-btn register-btn" onclick="openModal('registerModal')">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Register</span>
-                    </button>
-                </div>
                 <button class="mobile-menu-toggle" id="mobile-menu-toggle">
                     <span></span>
                     <span></span>
@@ -182,7 +172,7 @@
             <div class="cart-total">
                 <strong>Total: ₹<span id="cartTotal">0</span></strong>
             </div>
-            <button class="btn btn-primary full-width" onclick="checkout()">
+            <button class="btn btn-primary full-width" onclick="marketplace.checkout()">
                 <i class="fas fa-credit-card"></i> Checkout
             </button>
         </div>
