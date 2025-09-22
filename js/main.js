@@ -39,7 +39,7 @@ const destinations = [
     {
         name: "Betla National Park",
         description: "Famous wildlife sanctuary and tiger reserve with rich biodiversity",
-        image: "assets/images/betla.jpg",
+        image: "assets/images/betla.jpeg",
         features: ["Wildlife", "Tiger Reserve", "Adventure Safari"],
         category: "nature",
         rating: 4.6,
@@ -49,7 +49,7 @@ const destinations = [
     {
         name: "Hundru Falls",
         description: "Spectacular 98-meter waterfall near Ranchi, perfect for photography",
-        image: "assets/images/hundru.jpg",
+        image: "assets/images/hundru.jpeg",
         features: ["Waterfall", "Trekking", "Photography"],
         category: "nature",
         rating: 4.4,
@@ -59,7 +59,7 @@ const destinations = [
     {
         name: "Netarhat",
         description: "Queen of Chotanagpur plateau, famous for sunrise and sunset views",
-        image: "assets/images/netarhat.jpg",
+        image: "assets/images/netarhat.jpeg",
         features: ["Hill Station", "Sunrise Point", "Cool Climate"],
         category: "nature",
         rating: 4.5,
@@ -89,7 +89,7 @@ const destinations = [
     {
         name: "Ranchi",
         description: "Capital city with beautiful waterfalls, lakes and modern attractions",
-        image: "assets/images/ranchi.jpg",
+        image: "assets/images/ranchi.jpeg",
         features: ["Urban Tourism", "Waterfalls", "Cultural Sites"],
         category: "cultural",
         rating: 4.2,
