@@ -2387,7 +2387,7 @@ h2::after {
     justify-content: center;
     margin: 0 auto var(--space-4);
     font-size: var(--text-2xl);
-    box-shadow:
+    box-shadow: var(--shadow-md);
     font-size: var(--text-2xl);
     box-shadow: var(--shadow-md);
 }
