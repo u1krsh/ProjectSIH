@@ -799,9 +799,27 @@ function getUserLocationAndFetchWeather() {
     
     // Show loading immediately
     showWeatherLoading(true);
-    
+        if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                console.log("Weather: Geolocation success.", position.coords);
+                userLocation.lat = position.coords.latitude;
+                userLocation.lng = position.coords.longitude;
+                fetchWeatherByCoordinates(userLocation.lat, userLocation.lng);
+            },
+            (error) => {
+                console.error('Weather: Geolocation error:', error.message, "Falling back to default city.");
+                showWeatherError('Location access denied. Showing weather for Ranchi.');
+                fetchWeatherData('ranchi');
+            },
+            { timeout: 5000, enableHighAccuracy: false }
+        );
+    } else {
+        console.error('Weather: Geolocation not supported. Falling back to default city.');
+        showWeatherError('Geolocation not supported. Showing weather for Ranchi.');
+    }
     // Always fetch Ranchi weather instead of trying to get user location
-    fetchWeatherData('ranchi');
+    // fetchWeatherData('ranchi');
 }
 
 async function fetchWeatherData(city) {

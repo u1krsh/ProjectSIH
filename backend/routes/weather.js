@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 
 // OpenWeatherMap API configuration
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || '2f8a0ab478a6bfe3929944af40285671';
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || 'bd5e378503939ddaee76f12ad7a97608';
 const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 // Simple in-memory cache for weather data
