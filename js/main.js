@@ -262,15 +262,26 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     startCounterAnimations();
+    
+    // Initialize weather with a slight delay to ensure DOM is fully loaded
+    setTimeout(() => {
+        initializeWeather();
+    }, 1000);
 });
 
 function initializeApp() {
     renderDestinations();
     renderEcoTours();
     renderCultureContent();
-    initializeWeather();
-    setupThemeToggle();
-    setupLanguageSelector();
+
+    const exploreMapBtn = document.getElementById('exploreMapBtn');
+    if (exploreMapBtn) {
+        exploreMapBtn.addEventListener('click', () => {
+            document.getElementById('interactive-map').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    }
 }
 
 function setupEventListeners() {
@@ -702,128 +713,114 @@ let currentWeatherData = null;
 let userLocation = { lat: 23.3441, lng: 85.3096, city: 'Ranchi' }; // Default to Ranchi
 
 function initializeWeather() {
+    console.log("Weather: Initializing.");
     const weatherWidget = document.getElementById('weatherWidget');
     if (weatherWidget) {
         setupWeatherEvents();
         getUserLocationAndFetchWeather();
+        
+        // Set up automatic weather refresh every 10 minutes
+        setInterval(() => {
+            console.log("Weather: Auto-refreshing weather data");
+            if (userLocation.city) {
+                fetchWeatherData(userLocation.city);
+            } else if (userLocation.lat && userLocation.lng) {
+                fetchWeatherByCoordinates(userLocation.lat, userLocation.lng);
+            }
+        }, 600000); // 10 minutes
+    } else {
+        console.error("Weather: Widget element not found, retrying in 2 seconds");
+        setTimeout(initializeWeather, 2000);
     }
 }
 
 function setupWeatherEvents() {
+    console.log("Weather: Setting up events.");
     const weatherWidget = document.getElementById('weatherWidget');
     const weatherModal = document.getElementById('weatherModal');
     const closeBtn = document.querySelector('.close-weather-modal');
-    
-    // Click to expand weather dashboard
-    weatherWidget.addEventListener('click', function() {
+    const expandBtn = weatherWidget ? weatherWidget.querySelector('.weather-expand') : null;
+
+    const handleWidgetClick = () => {
+        console.log("Weather: Widget clicked.");
+        console.log("Weather: Current data is:", currentWeatherData);
         if (currentWeatherData) {
             openWeatherDashboard();
+        } else {
+            console.warn("Weather data not available, cannot open dashboard.");
         }
-    });
+    };
+
+    if (weatherWidget) {
+        console.log("Weather: Found widget, attaching click listener.");
+        // Handle clicks on the main widget body and the expand icon
+        weatherWidget.addEventListener('click', handleWidgetClick);
+    }
     
-    // Close modal events
+    if (expandBtn) {
+        // Prevent the main widget click from firing twice if the icon is clicked
+        expandBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            handleWidgetClick();
+        });
+    }
+
     if (closeBtn) {
         closeBtn.addEventListener('click', closeWeatherDashboard);
     }
-    
+
     if (weatherModal) {
-        weatherModal.addEventListener('click', function(e) {
+        weatherModal.addEventListener('click', (e) => {
             if (e.target === weatherModal) {
                 closeWeatherDashboard();
             }
         });
     }
-    
-    // Hide weather widget on scroll
-    window.addEventListener('scroll', function() {
-        const weatherWidget = document.getElementById('weatherWidget');
-        if (!weatherWidget) return;
 
-        if (window.scrollY > 100) {
-            // Scrolled down, hide widget
-            weatherWidget.classList.add('hidden');
-        } else {
-            // At the top, show widget
-            weatherWidget.classList.remove('hidden');
+    window.addEventListener('scroll', () => {
+        const widget = document.getElementById('weatherWidget');
+        if (widget) {
+            widget.classList.toggle('hidden', window.scrollY > 100);
         }
     }, { passive: true });
-    
+
     // Auto-refresh weather every 10 minutes
     setInterval(() => {
         if (userLocation.city) {
             fetchWeatherData(userLocation.city);
+        } else if (userLocation.lat && userLocation.lng) {
+            fetchWeatherByCoordinates(userLocation.lat, userLocation.lng);
         }
     }, 600000); // 10 minutes
 }
 
 function getUserLocationAndFetchWeather() {
+    console.log("Weather: Fetching weather for Ranchi (default location).");
+    
+    // Show loading immediately
     showWeatherLoading(true);
     
-    // Try to get user's geolocation
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                userLocation.lat = position.coords.latitude;
-                userLocation.lng = position.coords.longitude;
-                fetchWeatherByCoordinates(userLocation.lat, userLocation.lng);
-            },
-            function(error) {
-                console.log('Geolocation error:', error);
-                // Fallback to default location (Ranchi)
-                fetchWeatherData('ranchi');
-            },
-            { timeout: 5000, enableHighAccuracy: false }
-        );
-    } else {
-        // Geolocation not supported, use default
-        fetchWeatherData('ranchi');
-    }
+    // Always fetch Ranchi weather instead of trying to get user location
+    fetchWeatherData('ranchi');
 }
 
 async function fetchWeatherData(city) {
     try {
+        console.log(`Weather: Fetching data for city: ${city}`);
         showWeatherLoading(true);
-        
-        // Call the enhanced backend API with real-time data
-        const response = await fetch(`/api/weather/${city}`);
-        
+        const response = await fetch(`http://localhost:5000/api/weather/${city}`);
+        console.log(`Weather: Response status for ${city}: ${response.status}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const result = await response.json();
-        
         if (result.success) {
-            currentWeatherData = result.data;
-            updateWeatherWidget(currentWeatherData);
-            userLocation.city = currentWeatherData.city;
-            
-            // Log data source for debugging
-            console.log(`🌤️ Weather data loaded for ${currentWeatherData.city} from ${result.source || 'unknown'} source`);
-            
-            // Show user feedback if using cached data
-            if (result.cached) {
-                console.log('📦 Using cached weather data');
-            }
-            
-            // Show notification if using mock data due to API limitations
-            if (result.source === 'mock') {
-                console.log('⚠️ Using sample weather data. Configure OpenWeatherMap API key for real-time data.');
-            }
+            handleSuccessfulWeatherFetch(result);
         } else {
             throw new Error(result.message || 'Failed to fetch weather data');
         }
     } catch (error) {
-        console.error('Weather fetch error:', error);
-        console.log('🔄 Falling back to local mock data...');
-        
-        // Fallback to local mock data
-        currentWeatherData = getMockWeatherData(city);
-        updateWeatherWidget(currentWeatherData);
-        userLocation.city = currentWeatherData.city;
-        
-        // Show user-friendly error message
-        showWeatherError('Unable to fetch live weather data. Showing sample information.');
+        handleFailedWeatherFetch(error, city);
     } finally {
         showWeatherLoading(false);
     }
@@ -831,169 +828,114 @@ async function fetchWeatherData(city) {
 
 async function fetchWeatherByCoordinates(lat, lng) {
     try {
+        console.log(`Weather: Fetching data for coords: ${lat}, ${lng}`);
         showWeatherLoading(true);
-        
-        const response = await fetch(`/api/weather/coords/${lat}/${lng}`);
-        
+        const response = await fetch(`http://localhost:5000/api/weather/coords/${lat}/${lng}`);
+        console.log(`Weather: Response status for coords: ${response.status}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const result = await response.json();
-        
         if (result.success) {
-            currentWeatherData = result.data;
-            updateWeatherWidget(currentWeatherData);
-            
-            // Use the city name from the API response or get from coordinates
-            if (currentWeatherData.city && currentWeatherData.city !== 'Unknown Location') {
-                userLocation.city = currentWeatherData.city;
-            } else {
-                // Get city name from coordinates if not provided by API
-                const cityName = await getCityFromCoordinates(lat, lng);
-                userLocation.city = cityName;
-                currentWeatherData.city = cityName;
-            }
-            
-            // Log data source for debugging
-            console.log(`🌤️ Weather data loaded for coordinates (${lat}, ${lng}) from ${result.source || 'unknown'} source`);
-            
-            // Show user feedback
-            if (result.cached) {
-                console.log('📦 Using cached weather data');
-            }
-            
-            if (result.source === 'mock') {
-                console.log('⚠️ Using sample weather data. Configure OpenWeatherMap API key for real-time data.');
-            }
+            handleSuccessfulWeatherFetch(result);
         } else {
             throw new Error(result.message || 'Failed to fetch weather data');
         }
     } catch (error) {
-        console.error('Weather coordinate fetch error:', error);
-        console.log('🔄 Falling back to default location weather...');
-        
-        // Fallback to default city weather
-        await fetchWeatherData('ranchi');
+        handleFailedWeatherFetch(error, 'ranchi');
     } finally {
         showWeatherLoading(false);
     }
 }
 
+function handleSuccessfulWeatherFetch(result) {
+    console.log("Weather: Fetch successful. Received data:", result.data);
+    currentWeatherData = result.data;
+    updateWeatherWidget(currentWeatherData);
+    userLocation.city = currentWeatherData.city;
+    console.log(`🌤️ Weather data loaded for ${currentWeatherData.city} from ${result.source || 'unknown'} source (Cached: ${!!result.cached})`);
+}
+
+function handleFailedWeatherFetch(error, fallbackCity) {
+    console.error('Weather: Fetch failed.', error);
+    showWeatherError('Unable to fetch live weather. Showing sample data.');
+    currentWeatherData = getMockWeatherData(fallbackCity);
+    updateWeatherWidget(currentWeatherData);
+    userLocation.city = currentWeatherData.city;
+}
+
 function getMockWeatherData(city = 'Ranchi') {
     const mockData = {
         ranchi: {
-            city: 'Ranchi',
+            city: 'Ranchi (Mock)',
             temperature: 25,
             condition: 'partly_cloudy',
-            description: 'Partly cloudy with pleasant weather',
+            description: 'Partly cloudy',
             humidity: 65,
             windSpeed: 8,
-            uvIndex: { index: 6, level: 'High' },
-            airQuality: { aqi: 75, level: 'Good' },
-            visibility: '10 km',
+            feelsLike: 27,
             pressure: 1013,
-            feelsLike: 28,
             forecast: [
-                { day: 'Today', high: 28, low: 18, condition: 'partly_cloudy', description: 'Partly Cloudy' },
-                { day: 'Tomorrow', high: 30, low: 19, condition: 'sunny', description: 'Sunny' },
-                { day: 'Day 3', high: 27, low: 17, condition: 'cloudy', description: 'Cloudy' },
-                { day: 'Day 4', high: 26, low: 16, condition: 'rainy', description: 'Light Rain' },
-                { day: 'Day 5', high: 29, low: 20, condition: 'sunny', description: 'Sunny' }
+                { day: 'Today', high: 28, low: 18, condition: 'partly_cloudy' },
+                { day: 'Tomorrow', high: 30, low: 19, condition: 'sunny' },
             ]
         }
     };
-    
     return mockData[city.toLowerCase()] || mockData.ranchi;
 }
 
-function updateWeatherWidget(weatherData) {
+function updateWeatherWidget(data) {
     const weatherWidget = document.getElementById('weatherWidget');
-    if (!weatherWidget || !weatherData) return;
-    
+    if (!weatherWidget || !data) {
+        console.error("Weather widget element not found or no data provided.");
+        return;
+    }
+
     const icons = {
         sunny: 'fas fa-sun',
         partly_cloudy: 'fas fa-cloud-sun',
         cloudy: 'fas fa-cloud',
-        rainy: 'fas fa-cloud-rain',
+        rainy: 'fas fa-cloud-showers-heavy',
         stormy: 'fas fa-bolt',
-        snow: 'fas fa-snowflake'
+        snowy: 'fas fa-snowflake',
+        foggy: 'fas fa-smog',
+        hazy: 'fas fa-smog'
     };
-    
-    // Update widget display
-    const weatherIcon = weatherWidget.querySelector('.weather-icon i');
-    const temperature = weatherWidget.querySelector('.temperature');
-    const condition = weatherWidget.querySelector('.condition');
-    const location = weatherWidget.querySelector('.location');
-    const humidity = weatherWidget.querySelector('.humidity');
-    const wind = weatherWidget.querySelector('.wind');
-    
-    if (weatherIcon) weatherIcon.className = icons[weatherData.condition] || icons.sunny;
-    if (temperature) temperature.textContent = `${weatherData.temperature}°C`;
-    if (condition) condition.textContent = weatherData.description || getConditionText(weatherData.condition);
-    if (location) location.textContent = weatherData.city;
-    if (humidity) humidity.textContent = `${weatherData.humidity}%`;
-    if (wind) wind.textContent = `${weatherData.windSpeed} km/h`;
-    
-    // Add weather-based styling
-    updateWeatherStyling(weatherData.condition);
-}
 
-function getConditionText(condition) {
-    const conditions = {
-        sunny: 'Sunny',
-        partly_cloudy: 'Partly Cloudy',
-        cloudy: 'Cloudy',
-        rainy: 'Rainy',
-        stormy: 'Stormy',
-        snow: 'Snow'
-    };
-    return conditions[condition] || 'Clear';
+    const mainCondition = data.condition.toLowerCase();
+
+    weatherWidget.querySelector('.weather-icon i').className = icons[mainCondition] || 'fas fa-cloud-sun';
+    weatherWidget.querySelector('.temperature').textContent = `${Math.round(data.temperature)}°C`;
+    weatherWidget.querySelector('.condition').textContent = data.description;
+    weatherWidget.querySelector('.location').textContent = data.city;
+    weatherWidget.querySelector('.humidity').textContent = `${data.humidity}%`;
+    weatherWidget.querySelector('.wind').textContent = `${data.windSpeed} km/h`;
+
+    updateWeatherStyling(mainCondition);
 }
 
 function updateWeatherStyling(condition) {
     const weatherWidget = document.getElementById('weatherWidget');
     if (!weatherWidget) return;
-    
-    // Remove existing condition classes
     weatherWidget.classList.remove('weather-sunny', 'weather-cloudy', 'weather-rainy', 'weather-stormy');
-    
-    // Add new condition class
     weatherWidget.classList.add(`weather-${condition}`);
 }
 
 function showWeatherLoading(show) {
     const weatherWidget = document.getElementById('weatherWidget');
-    if (!weatherWidget) return;
-
-    const weatherContent = weatherWidget.querySelector('.weather-content');
-    const weatherLoading = weatherWidget.querySelector('.weather-loading');
-    
-    if (weatherContent && weatherLoading) {
-        if (show) {
-            weatherWidget.classList.add('loading');
-        } else {
-            weatherWidget.classList.remove('loading');
-        }
+    if (weatherWidget) {
+        weatherWidget.classList.toggle('loading', show);
     }
 }
 
 function showWeatherError(message) {
     console.warn('Weather Error:', message);
-    
-    // You could add a toast notification here if you have a notification system
-    // For now, we'll just log it to the console
-    
-    // Optional: Show a temporary indicator in the weather widget
     const weatherWidget = document.getElementById('weatherWidget');
     if (weatherWidget) {
-        const originalTitle = weatherWidget.title;
         weatherWidget.title = message;
         weatherWidget.style.opacity = '0.7';
-        
-        // Reset after 3 seconds
         setTimeout(() => {
-            weatherWidget.title = originalTitle;
+            weatherWidget.title = 'Current Weather';
             weatherWidget.style.opacity = '1';
         }, 3000);
     }
@@ -1005,8 +947,6 @@ function openWeatherDashboard() {
         updateWeatherDashboard(currentWeatherData);
         weatherModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
-        
-        // Animate modal appearance
         setTimeout(() => {
             weatherModal.classList.add('weather-modal-open');
         }, 10);
@@ -1018,58 +958,69 @@ function closeWeatherDashboard() {
     if (weatherModal) {
         weatherModal.classList.remove('weather-modal-open');
         document.body.style.overflow = '';
-        
         setTimeout(() => {
             weatherModal.style.display = 'none';
         }, 300);
     }
 }
 
-function updateWeatherDashboard(weatherData) {
-    updateCurrentWeatherSection(weatherData);
-    updateForecastSection(weatherData.forecast || []);
-    updateTravelAdviceSection(weatherData);
-    fetchAndUpdateAlerts(weatherData.city);
+function updateWeatherDashboard(data) {
+    updateCurrentWeatherSection(data);
+    updateForecastSection(data.forecast || []);
+    // The functions below are placeholders as the HTML for them does not exist in the provided context
+    // updateTravelAdviceSection(data);
+    // fetchAndUpdateAlerts(data.city);
 }
 
-function updateCurrentWeatherSection(weatherData) {
+function updateCurrentWeatherSection(data) {
+    const modal = document.getElementById('weatherModal');
+    if (!modal) return;
+
     const icons = {
         sunny: 'fas fa-sun',
         partly_cloudy: 'fas fa-cloud-sun',
         cloudy: 'fas fa-cloud',
-        rainy: 'fas fa-cloud-rain',
-        stormy: 'fas fa-bolt'
+        rainy: 'fas fa-cloud-showers-heavy',
+        stormy: 'fas fa-bolt',
+        snowy: 'fas fa-snowflake',
+        foggy: 'fas fa-smog',
+        hazy: 'fas fa-smog'
     };
+
+    const mainCondition = data.condition.toLowerCase();
+
+    // Main display
+    const currentIcon = modal.querySelector('.current-icon i');
+    if (currentIcon) currentIcon.className = icons[mainCondition] || 'fas fa-cloud-sun';
     
-    // Update current weather display
-    const currentIcon = document.querySelector('.current-icon i');
-    const currentLocation = document.querySelector('.current-location');
-    const currentTemp = document.querySelector('.current-temp');
-    const currentCondition = document.querySelector('.current-condition');
-    const feelsLike = document.querySelector('.feels-like');
-    
-    if (currentIcon) currentIcon.className = icons[weatherData.condition] || icons.sunny;
-    if (currentLocation) currentLocation.textContent = `${weatherData.city}, Jharkhand`;
-    if (currentTemp) currentTemp.textContent = `${weatherData.temperature}°C`;
-    if (currentCondition) currentCondition.textContent = weatherData.description;
-    if (feelsLike) feelsLike.textContent = `Feels like ${weatherData.feelsLike || weatherData.temperature + 3}°C`;
-    
-    // Update detail values
-    updateDetailValue('Humidity', `${weatherData.humidity}%`);
-    updateDetailValue('Wind Speed', `${weatherData.windSpeed} km/h`);
-    updateDetailValue('UV Index', `${weatherData.uvIndex?.index || 6} (${weatherData.uvIndex?.level || 'High'})`);
-    updateDetailValue('Visibility', weatherData.visibility || '10 km');
-    updateDetailValue('Pressure', `${weatherData.pressure || 1013} hPa`);
-    updateDetailValue('Air Quality', `${weatherData.airQuality?.level || 'Good'} (${weatherData.airQuality?.aqi || 75})`);
+    const currentLocation = modal.querySelector('.current-location');
+    if (currentLocation) currentLocation.textContent = `${data.city}, Jharkhand`;
+
+    const currentTemp = modal.querySelector('.current-temp');
+    if (currentTemp) currentTemp.textContent = `${Math.round(data.temperature)}°C`;
+
+    const currentCondition = modal.querySelector('.current-condition');
+    if (currentCondition) currentCondition.textContent = data.description;
+
+    const feelsLike = modal.querySelector('.feels-like');
+    if (feelsLike) feelsLike.textContent = `Feels like ${Math.round(data.feelsLike)}°C`;
+
+    // Details grid
+    updateDetailValue('Humidity', `${data.humidity}%`);
+    updateDetailValue('Wind Speed', `${data.windSpeed} km/h`);
+    updateDetailValue('Pressure', `${data.pressure} hPa`);
+    updateDetailValue('Visibility', `${data.visibility || 'N/A'} km`);
 }
 
 function updateDetailValue(label, value) {
     const detailItems = document.querySelectorAll('.detail-item');
     detailItems.forEach(item => {
         const labelElement = item.querySelector('.detail-label');
-        const valueElement = item.querySelector('.detail-value');
-        if (labelElement && labelElement.textContent === label && valueElement) {
-            valueElement.textContent = value;
+        if (labelElement && labelElement.textContent === label) {
+            const valueElement = item.querySelector('.detail-value');
+            if (valueElement) {
+                valueElement.textContent = value;
+            }
         }
     });
 }
@@ -1077,183 +1028,31 @@ function updateDetailValue(label, value) {
 function updateForecastSection(forecast) {
     const forecastContainer = document.querySelector('.forecast-container');
     if (!forecastContainer || !forecast.length) return;
-    
+
     const icons = {
         sunny: 'fas fa-sun',
         partly_cloudy: 'fas fa-cloud-sun',
         cloudy: 'fas fa-cloud',
-        rainy: 'fas fa-cloud-rain',
-        stormy: 'fas fa-bolt'
+        rainy: 'fas fa-cloud-showers-heavy',
+        stormy: 'fas fa-bolt',
+        snowy: 'fas fa-snowflake',
+        foggy: 'fas fa-smog'
     };
-    
+
     forecastContainer.innerHTML = forecast.map((day, index) => `
         <div class="forecast-item">
-            <div class="forecast-day">${index === 0 ? 'Today' : day.day}</div>
+            <div class="forecast-day">${day.day}</div>
             <div class="forecast-icon">
-                <i class="${icons[day.condition] || icons.sunny}"></i>
+                <i class="${icons[day.condition] || icons.partly_cloudy}"></i>
             </div>
             <div class="forecast-temps">
                 <span class="high">${day.high}°</span>
                 <span class="low">${day.low}°</span>
             </div>
-            <div class="forecast-condition">${day.description || getConditionText(day.condition)}</div>
         </div>
     `).join('');
 }
 
-async function updateTravelAdviceSection(weatherData) {
-    try {
-        const response = await fetch(`/api/weather/travel-advice/${weatherData.city}`);
-        const result = await response.json();
-        
-        if (result.success) {
-            const advice = result.data;
-            updateTravelAdviceDisplay(advice);
-        } else {
-            updateTravelAdviceDisplay(getMockTravelAdvice(weatherData));
-        }
-    } catch (error) {
-        updateTravelAdviceDisplay(getMockTravelAdvice(weatherData));
-    }
-}
-
-function getMockTravelAdvice(weatherData) {
-    return {
-        currentConditions: weatherData.temperature > 30 ? 'Hot weather - stay hydrated' : 
-                          weatherData.temperature < 15 ? 'Cool weather - dress warmly' : 
-                          'Perfect weather for outdoor activities',
-        recommendations: [
-            'Excellent weather for sightseeing and photography',
-            'Comfortable conditions for nature walks',
-            'Perfect time to visit tribal villages',
-            'Ideal for outdoor cultural experiences'
-        ],
-        whatToBring: [
-            'Comfortable walking shoes',
-            'Water bottle',
-            'Sun hat and sunglasses',
-            'Light cotton clothing',
-            'Camera for photography'
-        ],
-        bestActivities: [
-            'Village tours',
-            'Photography',
-            'Nature walks',
-            'Cultural experiences',
-            'Outdoor dining'
-        ]
-    };
-}
-
-function updateTravelAdviceDisplay(advice) {
-    // Update advice header
-    const adviceCard = document.querySelector('.advice-card p');
-    if (adviceCard) {
-        adviceCard.textContent = advice.currentConditions;
-    }
-    
-    // Update what to bring
-    const bringItems = document.querySelector('.bring-items');
-    if (bringItems && advice.whatToBring) {
-        bringItems.innerHTML = advice.whatToBring.map(item => `
-            <div class="bring-item">
-                <i class="fas fa-check"></i>
-                <span>${item}</span>
-            </div>
-        `).join('');
-    }
-    
-    // Update activities
-    const activityTags = document.querySelector('.activity-tags');
-    if (activityTags && advice.bestActivities) {
-        activityTags.innerHTML = advice.bestActivities.map(activity => `
-            <span class="activity-tag">${activity}</span>
-        `).join('');
-    }
-}
-
-async function fetchAndUpdateAlerts(city) {
-    try {
-        const response = await fetch(`/api/weather/alerts/${city}`);
-        const result = await response.json();
-        
-        if (result.success) {
-            updateAlertsDisplay(result.data);
-        } else {
-            updateAlertsDisplay([]);
-        }
-    } catch (error) {
-        updateAlertsDisplay([]);
-    }
-}
-
-function updateAlertsDisplay(alerts) {
-    const alertsContainer = document.querySelector('.alerts-container');
-    if (!alertsContainer) return;
-    
-    if (!alerts.length) {
-        alertsContainer.innerHTML = `
-            <div class="no-alerts">
-                <i class="fas fa-check-circle"></i>
-                <p>No weather alerts at this time. Conditions are favorable for travel.</p>
-            </div>
-        `;
-        return;
-    }
-    
-    const severityIcons = {
-        low: 'fas fa-info-circle',
-        medium: 'fas fa-exclamation-triangle',
-        high: 'fas fa-exclamation-circle'
-    };
-    
-    alertsContainer.innerHTML = alerts.map(alert => `
-        <div class="alert-item alert-${alert.severity}">
-            <div class="alert-icon">
-                <i class="${severityIcons[alert.severity] || severityIcons.low}"></i>
-            </div>
-            <div class="alert-content">
-                <h4>${alert.title}</h4>
-                <p>${alert.description}</p>
-                <div class="alert-meta">
-                    <span>Valid until: ${new Date(alert.validUntil).toLocaleDateString()}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
-
-async function getCityFromCoordinates(lat, lng) {
-    // Simple city detection based on coordinates for Jharkhand
-    const jharkhandCities = [
-        { name: 'Ranchi', lat: 23.3441, lng: 85.3096, radius: 50 },
-        { name: 'Jamshedpur', lat: 22.8046, lng: 86.2029, radius: 50 },
-        { name: 'Dhanbad', lat: 23.7957, lng: 86.4304, radius: 40 },
-        { name: 'Bokaro', lat: 23.6693, lng: 86.1511, radius: 40 },
-        { name: 'Deoghar', lat: 24.4820, lng: 86.6958, radius: 30 },
-        { name: 'Hazaribagh', lat: 23.9929, lng: 85.3647, radius: 30 }
-    ];
-    
-    for (const city of jharkhandCities) {
-        const distance = calculateDistance(lat, lng, city.lat, city.lng);
-        if (distance <= city.radius) {
-            return city.name;
-        }
-    }
-    
-    return 'Jharkhand'; // Default if no specific city found
-}
-
-function calculateDistance(lat1, lng1, lat2, lng2) {
-    const R = 6371; // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
 
 function setupThemeToggle() {
     // Dark mode is now default - no theme toggle needed

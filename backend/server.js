@@ -50,7 +50,8 @@ async function testConnection() {
         connection.release();
     } catch (error) {
         console.error('❌ Database connection failed:', error.message);
-        process.exit(1);
+        console.log('⚠️  Server will continue running without database functionality');
+        // Don't exit the process - continue running for API endpoints that don't need database
     }
 }
 
@@ -95,7 +96,11 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: [
+        process.env.CLIENT_URL || 'http://localhost:3000',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -168,14 +173,13 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
+console.log('📝 Registering API routes...');
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/marketplace', require('./routes/marketplace'));
 app.use('/api/folklore', require('./routes/folklore'));
-app.use('/api/homestays', require('./routes/homestays'));
-app.use('/api/forum', require('./routes/forum'));
-app.use('/api/destinations', require('./routes/destinations'));
-app.use('/api/chatbot', require('./routes/chatbot'));
 app.use('/api/weather', require('./routes/weather'));
+app.use('/api/chatbot', require('./routes/chatbot'));
+console.log('✅ Weather API route registered at /api/weather');
 
 // Serve static files from frontend
 if (process.env.NODE_ENV === 'production') {
@@ -187,6 +191,37 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Error handling middleware
+const errorHandler = (err, req, res, next) => {
+    console.error('Error:', err);
+    
+    // Default error
+    let error = { ...err };
+    error.message = err.message;
+
+    // Mongoose bad ObjectId
+    if (err.name === 'CastError') {
+        const message = 'Resource not found';
+        error = { message, statusCode: 404 };
+    }
+
+    // Mongoose duplicate key
+    if (err.code === 11000) {
+        const message = 'Duplicate field value entered';
+        error = { message, statusCode: 400 };
+    }
+
+    // Mongoose validation error
+    if (err.name === 'ValidationError') {
+        const message = Object.values(err.errors).map(val => val.message);
+        error = { message, statusCode: 400 };
+    }
+
+    res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message || 'Server Error'
+    });
+};
+
 app.use(errorHandler);
 
 // 404 handler

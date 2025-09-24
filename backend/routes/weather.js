@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 
 // OpenWeatherMap API configuration
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || 'your_openweather_api_key_here';
+const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || '2f8a0ab478a6bfe3929944af40285671';
 const OPENWEATHER_BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 // Simple in-memory cache for weather data
@@ -150,7 +150,7 @@ router.get('/:city', async (req, res) => {
         let dataSource = 'api';
 
         // Try to get real weather data first
-        if (OPENWEATHER_API_KEY && OPENWEATHER_API_KEY !== 'your_openweather_api_key_here') {
+        if (OPENWEATHER_API_KEY && OPENWEATHER_API_KEY !== '2f8a0ab478a6bfe3929944af40285671') {
             try {
                 // Check if it's a known Jharkhand city
                 const cityInfo = JHARKHAND_CITIES[cacheKey];
@@ -355,7 +355,7 @@ router.get('/coords/:lat/:lng', async (req, res) => {
         let dataSource = 'api';
 
         // Try to get real weather data first
-        if (OPENWEATHER_API_KEY && OPENWEATHER_API_KEY !== 'your_openweather_api_key_here') {
+        if (OPENWEATHER_API_KEY && OPENWEATHER_API_KEY !== '2f8a0ab478a6bfe3929944af40285671') {
             try {
                 weatherData = await fetchRealWeatherData(parseFloat(lat), parseFloat(lng));
                 weatherData.coordinates = { lat: parseFloat(lat), lng: parseFloat(lng) };
